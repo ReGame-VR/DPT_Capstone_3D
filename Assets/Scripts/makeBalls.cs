@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class makeBalls : MonoBehaviour {
     public Rigidbody Ball; // the ball 
 
+    private int score;
+
     public float speed;
 
     public GameObject cameraRig; // the camerarig prefab
@@ -23,17 +25,19 @@ public class makeBalls : MonoBehaviour {
     private float timeLeft = 10f;
 
     private Rigidbody newBall; // the new ball that is instantiated 
-    public static int score = 0; // the total score 
 
     // initialization of another ball
     void Start () {
+        ControllerHandler.OnBallGrab += BallCaught;
         CreateBall();
+        score = 0;
     }
     
     // Update is called once per frame
     void Update() {
         timeLeft -= Time.deltaTime;
-        text.text = "Time Left:" + Mathf.Round(timeLeft);
+        text.text = "Time Left:" + Mathf.Round(timeLeft) + "\nScore: " + score;
+
         if (timeLeft < 0)
         {
             DestroyBall();
@@ -44,6 +48,11 @@ public class makeBalls : MonoBehaviour {
         {
             CreateBall();
         }
+    }
+
+    void OnDisable()
+    {
+        ControllerHandler.OnBallGrab -= BallCaught;
     }
 
     private void CreateBall()
@@ -92,8 +101,12 @@ public class makeBalls : MonoBehaviour {
     {
         if (collision.gameObject.name == "BlueCircle" || collision.gameObject.name == "GreenCircle") //collides with a certain circle
         {
-            score++; 
-            print("score: " + score); //prints to the console
+
         }
+    }
+
+    private void BallCaught()
+    {
+        score += 5;
     }
 }

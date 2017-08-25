@@ -12,6 +12,10 @@ public class ControllerHandler : MonoBehaviour {
     // the controller
     private SteamVR_TrackedObject trackedObj;
 
+    public delegate void BallGrabbed();
+
+    public static BallGrabbed OnBallGrab;
+
     private SteamVR_Controller.Device Controller
     {
         get { return SteamVR_Controller.Input((int)trackedObj.index); }
@@ -54,6 +58,11 @@ public class ControllerHandler : MonoBehaviour {
 
     private void GrabObject()
     {
+        if (OnBallGrab != null)
+        {
+            OnBallGrab();
+        }
+
         objectInHand = collidingObject;
         collidingObject = null;
  
