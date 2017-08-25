@@ -29,6 +29,7 @@ public class makeBalls : MonoBehaviour {
     // initialization of another ball
     void Start () {
         ControllerHandler.OnBallGrab += BallCaught;
+        makeTargets.OnTargetHit += TargetHit;
         CreateBall();
         score = 0;
     }
@@ -53,6 +54,7 @@ public class makeBalls : MonoBehaviour {
     void OnDisable()
     {
         ControllerHandler.OnBallGrab -= BallCaught;
+        makeTargets.OnTargetHit -= TargetHit;
     }
 
     private void CreateBall()
@@ -96,17 +98,14 @@ public class makeBalls : MonoBehaviour {
         isBall = false;
     }
 
-    // if the ball comes into contact with the target
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (collision.gameObject.name == "BlueCircle" || collision.gameObject.name == "GreenCircle") //collides with a certain circle
-        {
-
-        }
-    }
-
     private void BallCaught()
     {
         score += 5;
+    }
+
+    private void TargetHit()
+    {
+        score += 5;
+        DestroyBall();
     }
 }
