@@ -6,61 +6,46 @@ using UnityEngine.UI;
 public class makeBalls : MonoBehaviour {
     public Rigidbody Ball; // the ball 
 
-    private int score;
-
-    public float speed;
+    public float speed; // the speed of the ball coming towards the target
 
     public GameObject cameraRig; // the camerarig prefab
 
-    public float fieldWidth;
+    public float fieldWidth; 
 
     public float fieldDepth;
 
     public float fieldHeight;
 
-    public Text text;
-
     private bool isBall; // is there currently a ball?
-
-    private float timeLeft = 10f;
 
     private Rigidbody newBall; // the new ball that is instantiated 
 
+    private int targetDirection = 0;
+
     // initialization of another ball
     void Start () {
-        ControllerHandler.OnBallGrab += BallCaught;
-        makeTargets.OnTargetHit += TargetHit;
+        makeTargets.OnTargetMove += OnTargetMove;
+        UIController.OnTimeUp += DestroyBall;
+
         CreateBall();
-        score = 0;
-    }
-    
-    // Update is called once per frame
-    void Update() {
-        timeLeft -= Time.deltaTime;
-        text.text = "Time Left:" + Mathf.Round(timeLeft) + "\nScore: " + score;
-
-        if (timeLeft < 0)
-        {
-            DestroyBall();
-            timeLeft = 10f;
-        }
-
-        if (!isBall)
-        {
-            CreateBall();
-        }
     }
 
     void OnDisable()
     {
-        ControllerHandler.OnBallGrab -= BallCaught;
-        makeTargets.OnTargetHit -= TargetHit;
+        makeTargets.OnTargetMove -= OnTargetMove;
+        UIController.OnTimeUp -= DestroyBall;
     }
 
     private void CreateBall()
     {
         isBall = true;
         int direction = Random.Range(1, 4);
+
+        // target and ball should not come from same direction 
+        while (direction == targetDirection)
+        {
+            direction = Random.Range(1, 4);
+        }
 
         float x, y, z;
 
@@ -98,14 +83,9 @@ public class makeBalls : MonoBehaviour {
         isBall = false;
     }
 
-    private void BallCaught()
+    private void OnTargetMove(int direction)
     {
-        score += 5;
-    }
-
-    private void TargetHit()
-    {
-        score += 5;
-        DestroyBall();
+        targetDirection = direction;
+        CreateBall();
     }
 }
