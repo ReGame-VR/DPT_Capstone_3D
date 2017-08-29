@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class makeBalls : MonoBehaviour {
     public Rigidbody Ball; // the ball 
 
     public float speed; // the speed of the ball coming towards the target
+
+    public GameObject target; // the target prefab
 
     public GameObject cameraRig; // the camerarig prefab
 
@@ -20,20 +21,18 @@ public class makeBalls : MonoBehaviour {
 
     private Rigidbody newBall; // the new ball that is instantiated 
 
-    private int targetDirection = 0;
+    private int targetDirection = 1;
 
     // initialization of another ball
     void Start () {
-        makeTargets.OnTargetMove += OnTargetMove;
-        UIController.OnTimeUp += DestroyBall;
-
+        UIController.OnTimeUp += Reset;
+        MoveTarget();
         CreateBall();
     }
 
     void OnDisable()
     {
-        makeTargets.OnTargetMove -= OnTargetMove;
-        UIController.OnTimeUp -= DestroyBall;
+        UIController.OnTimeUp -= Reset;
     }
 
     private void CreateBall()
@@ -46,6 +45,7 @@ public class makeBalls : MonoBehaviour {
         {
             direction = Random.Range(1, 4);
         }
+        Debug.Log(direction);
 
         float x, y, z;
 
@@ -77,15 +77,88 @@ public class makeBalls : MonoBehaviour {
         newBall.AddRelativeForce(Vector3.forward*speed, ForceMode.Acceleration);
     }
 
+    private void MoveTarget()
+    {
+        int direction = Random.Range(1, 6);
+        // Debug.Log(direction);
+
+        direction = 2;
+
+        float x, y, z;
+        x = 0;
+        y = 0;
+        z = 0;
+        
+        // reset back to no rotation so that it will rotate properly
+        /* switch (targetDirection)
+        {
+            // front - do nothing 
+            case 1:
+                break;
+            // left - rotate back to front
+            case 2:
+                target.transform.Rotate(0, 90, 0);
+                break;
+            // right
+            case 3:
+                target.transform.Rotate(0, -90, 0);
+                break;
+            // floor
+            case 4:
+                target.transform.Rotate(0, 0, -90);
+                break;
+            // ceiling
+            default:
+                target.transform.Rotate(0, 0, 90);
+                break;
+        }*/
+
+        // now rotate and move to appropriate spot
+        switch (direction)
+        {
+            // front - do nothing
+            case 1:
+                x = Random.Range(cameraRig.transform.position.x - fieldWidth / 2f, cameraRig.transform.position.x + fieldWidth / 2f);
+                y = Random.Range(cameraRig.transform.position.y, fieldHeight);
+                z = cameraRig.transform.position.z + fieldDepth;
+                break;
+            // left
+            case 2:
+                transform.Rotate(0, -90, 0, Space.World);
+                x = cameraRig.transform.position.x - fieldWidth / 2;
+                y = Random.Range(cameraRig.transform.position.y, fieldHeight);
+                z = Random.Range(cameraRig.transform.position.z, cameraRig.transform.position.z + fieldDepth);
+                break;
+            // right
+            case 3:
+                transform.Rotate(0, 90, 0);
+                break;
+            // floor
+            case 4:
+                transform.Rotate(0, 0, 90);
+                break;
+            // ceiling
+            default:
+                transform.Rotate(0, 0, -90);
+                break;
+        }
+
+        targetDirection = direction;
+
+        target.transform.position = new Vector3(x, y, z);
+
+    }
+
     private void DestroyBall()
     {
         Destroy(newBall.gameObject);
         isBall = false;
-    }
+    } 
 
-    private void OnTargetMove(int direction)
+    private void Reset()
     {
-        targetDirection = direction;
+        MoveTarget();
+        DestroyBall();
         CreateBall();
     }
 }

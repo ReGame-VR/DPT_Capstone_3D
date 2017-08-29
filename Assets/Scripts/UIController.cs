@@ -5,9 +5,11 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour {
 
-    public Text text;
+    [SerializeField]
+    private Text text;
 
-    public float timer = 10f;
+    [SerializeField]
+    private float timer = 5f;
 
     private float timeLeft;
 
@@ -19,7 +21,8 @@ public class UIController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        makeTargets.OnTargetHit -= this.OnTargetHit;
+        TargetCollision.OnTargetHit += this.OnTargetHit;
+        ControllerHandler.OnBallGrab += this.UpdateScore;
 
         timeLeft = timer;
         score = 0;
@@ -27,7 +30,8 @@ public class UIController : MonoBehaviour {
 
     void OnDisable()
     {
-        makeTargets.OnTargetHit -= this.OnTargetHit;
+        TargetCollision.OnTargetHit -= this.OnTargetHit;
+        ControllerHandler.OnBallGrab -= UpdateScore;
     }
 
     // Update is called once per frame
