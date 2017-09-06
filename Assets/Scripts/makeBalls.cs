@@ -1,13 +1,22 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class makeBalls : MonoBehaviour {
+    public Canvas frontCanvas;
+
+    public Canvas leftCanvas;
+
+    public Canvas rightCanvas;
+
+    public Canvas ceilingCanvas;
+
+    public Canvas floorCanvas;
+
     public Rigidbody Ball; // the ball 
 
     public float speed; // the speed of the ball coming towards the target
-
-    public GameObject target; // the target prefab
 
     public GameObject cameraRig; // the camerarig prefab
 
@@ -26,6 +35,14 @@ public class makeBalls : MonoBehaviour {
     // initialization of another ball
     void Start () {
         UIController.OnTimeUp += Reset;
+
+        // disable all targets
+        frontCanvas.GetComponent<Image>().enabled = true;
+        leftCanvas.GetComponent<Image>().enabled = false;
+        rightCanvas.GetComponent<Image>().enabled = false;
+        ceilingCanvas.GetComponent<Image>().enabled = false;
+        floorCanvas.GetComponent<Image>().enabled = false;
+
         MoveTarget();
         CreateBall();
     }
@@ -45,7 +62,6 @@ public class makeBalls : MonoBehaviour {
         {
             direction = Random.Range(1, 4);
         }
-        Debug.Log(direction);
 
         float x, y, z;
 
@@ -80,72 +96,73 @@ public class makeBalls : MonoBehaviour {
     private void MoveTarget()
     {
         int direction = Random.Range(1, 6);
-        // Debug.Log(direction);
 
-        direction = 2;
-
-        float x, y, z;
-        x = 0;
-        y = 0;
-        z = 0;
-        
-        // reset back to no rotation so that it will rotate properly
-        /* switch (targetDirection)
+        // disable whichever target was previously enabled
+        switch (targetDirection)
         {
-            // front - do nothing 
             case 1:
+                frontCanvas.GetComponent<Image>().enabled = false;
                 break;
-            // left - rotate back to front
             case 2:
-                target.transform.Rotate(0, 90, 0);
+                leftCanvas.GetComponent<Image>().enabled = false;
                 break;
-            // right
             case 3:
-                target.transform.Rotate(0, -90, 0);
+                rightCanvas.GetComponent<Image>().enabled = false;
                 break;
-            // floor
             case 4:
-                target.transform.Rotate(0, 0, -90);
+                floorCanvas.GetComponent<Image>().enabled = false;
                 break;
-            // ceiling
             default:
-                target.transform.Rotate(0, 0, 90);
+                ceilingCanvas.GetComponent<Image>().enabled = false;
                 break;
-        }*/
+        }
 
         // now rotate and move to appropriate spot
         switch (direction)
         {
-            // front - do nothing
+            // front
             case 1:
-                x = Random.Range(cameraRig.transform.position.x - fieldWidth / 2f, cameraRig.transform.position.x + fieldWidth / 2f);
-                y = Random.Range(cameraRig.transform.position.y, fieldHeight);
-                z = cameraRig.transform.position.z + fieldDepth;
+                frontCanvas.GetComponent<Image>().enabled = true;
+                frontCanvas.GetComponent<Image>().GetComponent<RectTransform>().position 
+                    = new Vector3(Random.Range(- fieldWidth / 2, fieldWidth / 2), 
+                    frontCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
+                    frontCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.z);
                 break;
-            // left
+            // left side
             case 2:
-                transform.Rotate(0, -90, 0, Space.World);
-                x = cameraRig.transform.position.x - fieldWidth / 2;
-                y = Random.Range(cameraRig.transform.position.y, fieldHeight);
-                z = Random.Range(cameraRig.transform.position.z, cameraRig.transform.position.z + fieldDepth);
+                leftCanvas.GetComponent<Image>().enabled = true;
+                leftCanvas.GetComponent<Image>().GetComponent<RectTransform>().position
+                    = new Vector3(leftCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.x,
+                    leftCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
+                    Random.Range(0, fieldDepth));
                 break;
-            // right
+            // right side
             case 3:
-                transform.Rotate(0, 90, 0);
+                rightCanvas.GetComponent<Image>().enabled = true;
+                rightCanvas.GetComponent<Image>().GetComponent<RectTransform>().position
+                    = new Vector3(rightCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.x,
+                    rightCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
+                    Random.Range(0, fieldDepth));
                 break;
-            // floor
+            // bottom
             case 4:
-                transform.Rotate(0, 0, 90);
+                floorCanvas.GetComponent<Image>().enabled = true;
+                floorCanvas.GetComponent<Image>().GetComponent<RectTransform>().position
+                    = new Vector3(Random.Range(-fieldWidth / 2, fieldWidth / 2),
+                    floorCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
+                    floorCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.z);
                 break;
-            // ceiling
+            // top
             default:
-                transform.Rotate(0, 0, -90);
+                ceilingCanvas.GetComponent<Image>().enabled = true;
+                ceilingCanvas.GetComponent<Image>().GetComponent<RectTransform>().position
+                    = new Vector3(Random.Range(-fieldWidth / 2, fieldWidth / 2),
+                    ceilingCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
+                    ceilingCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.z);
                 break;
         }
 
         targetDirection = direction;
-
-        target.transform.position = new Vector3(x, y, z);
 
     }
 
