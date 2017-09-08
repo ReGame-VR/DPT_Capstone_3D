@@ -32,9 +32,14 @@ public class makeBalls : MonoBehaviour {
 
     private int targetDirection = 1;
 
+    private GameObject obj;
+
     // initialization of another ball
     void Start () {
         UIController.OnTimeUp += Reset;
+
+        obj = new GameObject();
+        obj.AddComponent<Transform>();
 
         // disable all targets
         frontCanvas.GetComponent<Image>().enabled = true;
@@ -56,6 +61,10 @@ public class makeBalls : MonoBehaviour {
     {
         isBall = true;
         int direction = Random.Range(1, 4);
+
+        // set the gameobject that the ball will move towards
+        obj.transform.position = new Vector3(Random.Range(GameControl.Instance.leftMax, GameControl.Instance.rightMax),
+            Random.Range(0, GameControl.Instance.heightMax), cameraRig.transform.position.z);
 
         // target and ball should not come from same direction 
         while (direction == targetDirection)
@@ -89,7 +98,7 @@ public class makeBalls : MonoBehaviour {
         }
 
         newBall = Instantiate(Ball, new Vector3(x, y, z), Ball.transform.rotation);
-        newBall.transform.LookAt(cameraRig.transform);
+        newBall.transform.LookAt(obj.transform);
         newBall.AddRelativeForce(Vector3.forward*speed, ForceMode.Acceleration);
     }
 

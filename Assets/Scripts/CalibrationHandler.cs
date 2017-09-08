@@ -9,7 +9,7 @@ public class CalibrationHandler : MonoBehaviour {
     public Text text;
 
     // bounds that player can reach
-    private float forwardCal, backwardsCal, leftCal, rightCal, heightCal;
+    private float leftCal, rightCal, heightCal;
 
     // the controller
     private SteamVR_TrackedObject trackedObj;
@@ -21,8 +21,6 @@ public class CalibrationHandler : MonoBehaviour {
     void Awake()
     {
         trackedObj = GetComponent<SteamVR_TrackedObject>();
-        forwardCal = 0f;
-        backwardsCal = 0f;
         leftCal = 0f;
         rightCal = 0f;
         heightCal = 0f;
@@ -31,16 +29,6 @@ public class CalibrationHandler : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         Vector3 posn = gameObject.transform.position;
-
-        // front / back calibration
-        if (posn.z > forwardCal)
-        {
-            forwardCal = posn.z;
-        }
-        else if (posn.z < backwardsCal)
-        {
-            backwardsCal = posn.z;
-        }
         
         // side to side calibration
         if (posn.x > rightCal)
@@ -58,9 +46,7 @@ public class CalibrationHandler : MonoBehaviour {
             heightCal = posn.y;
         }
 
-        text.text = "max forward: " + forwardCal
-            + "\nmax backward: " + backwardsCal
-            + "\nmax left: " + leftCal
+        text.text = "\nmax left: " + leftCal
             + "\nmax right: " + rightCal
             + "\nmax height: " + heightCal;
 
@@ -74,8 +60,6 @@ public class CalibrationHandler : MonoBehaviour {
 
     private void SaveData()
     {
-        GameControl.Instance.forwardMax = forwardCal;
-        GameControl.Instance.backwardsMax = backwardsCal;
         GameControl.Instance.leftMax = leftCal;
         GameControl.Instance.rightMax = rightCal;
         GameControl.Instance.heightMax = heightCal;
