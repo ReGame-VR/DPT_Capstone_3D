@@ -17,7 +17,7 @@ public class UIController : MonoBehaviour {
 
     public delegate void TimeUp();
 
-    public static TimeUp OnTimeUp;
+    public static TimeUp OnReset;
 
 	// Use this for initialization
 	void Start () {
@@ -42,9 +42,9 @@ public class UIController : MonoBehaviour {
 
         if (timeLeft <= 0)
         {
-            if (OnTimeUp != null)
+            if (OnReset != null)
             {
-                OnTimeUp();
+                OnReset();
             }
 
             timeLeft = timer;
@@ -59,6 +59,12 @@ public class UIController : MonoBehaviour {
     private void OnTargetHit()
     {
         UpdateScore();
+
+        if (OnReset != null)
+        {
+            OnReset();
+        }
+
         timeLeft = timer;
     }
 }

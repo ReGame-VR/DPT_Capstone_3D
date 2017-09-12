@@ -14,6 +14,8 @@ public class makeBalls : MonoBehaviour {
 
     public Canvas floorCanvas;
 
+    public GameObject targetCollider;
+
     public Rigidbody Ball; // the ball 
 
     public float speed; // the speed of the ball coming towards the target
@@ -32,11 +34,18 @@ public class makeBalls : MonoBehaviour {
 
     private int targetDirection = 1;
 
+    private GameObject obj;
+
+    private float targetWidth = 6.5f;
+
     // initialization of another ball
     void Start () {
-        UIController.OnTimeUp += Reset;
+        UIController.OnReset += Reset;
 
-        // disable all targets
+        obj = new GameObject();
+        // obj.AddComponent<Transform>();
+
+        // disable all targets except for front
         frontCanvas.GetComponent<Image>().enabled = true;
         leftCanvas.GetComponent<Image>().enabled = false;
         rightCanvas.GetComponent<Image>().enabled = false;
@@ -49,13 +58,17 @@ public class makeBalls : MonoBehaviour {
 
     void OnDisable()
     {
-        UIController.OnTimeUp -= Reset;
+        UIController.OnReset -= Reset;
     }
 
     private void CreateBall()
     {
         isBall = true;
         int direction = Random.Range(1, 4);
+
+        // set the gameobject that the ball will move towards
+        obj.transform.position = new Vector3(Random.Range(GameControl.Instance.leftMax, GameControl.Instance.rightMax),
+            Random.Range(0, GameControl.Instance.heightMax), cameraRig.transform.position.z);
 
         // target and ball should not come from same direction 
         while (direction == targetDirection)
@@ -89,13 +102,15 @@ public class makeBalls : MonoBehaviour {
         }
 
         newBall = Instantiate(Ball, new Vector3(x, y, z), Ball.transform.rotation);
-        newBall.transform.LookAt(cameraRig.transform);
+        newBall.transform.LookAt(obj.transform);
         newBall.AddRelativeForce(Vector3.forward*speed, ForceMode.Acceleration);
     }
 
     private void MoveTarget()
     {
         int direction = Random.Range(1, 6);
+
+        BoxCollider col = targetCollider.GetComponent<BoxCollider>();
 
         // disable whichever target was previously enabled
         switch (targetDirection)
@@ -117,7 +132,7 @@ public class makeBalls : MonoBehaviour {
                 break;
         }
 
-        // now rotate and move to appropriate spot
+        // now rotate and move to appropriate spot along with collider
         switch (direction)
         {
             // front
@@ -127,6 +142,8 @@ public class makeBalls : MonoBehaviour {
                     = new Vector3(Random.Range(- fieldWidth / 2, fieldWidth / 2), 
                     frontCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
                     frontCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.z);
+                col.size = new Vector3(targetWidth, targetWidth, 0.3f);
+                targetCollider.transform.position = frontCanvas.transform.position;
                 break;
             // left side
             case 2:
@@ -135,6 +152,8 @@ public class makeBalls : MonoBehaviour {
                     = new Vector3(leftCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.x,
                     leftCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
                     Random.Range(0, fieldDepth));
+                col.size = new Vector3(0.3f, targetWidth, targetWidth);
+                targetCollider.transform.position = leftCanvas.transform.position;
                 break;
             // right side
             case 3:
@@ -143,6 +162,8 @@ public class makeBalls : MonoBehaviour {
                     = new Vector3(rightCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.x,
                     rightCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
                     Random.Range(0, fieldDepth));
+                col.size = new Vector3(0.3f, targetWidth, targetWidth);
+                targetCollider.transform.position = rightCanvas.transform.position;
                 break;
             // bottom
             case 4:
@@ -151,6 +172,8 @@ public class makeBalls : MonoBehaviour {
                     = new Vector3(Random.Range(-fieldWidth / 2, fieldWidth / 2),
                     floorCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
                     floorCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.z);
+                col.size = new Vector3(targetWidth, 0.3f, targetWidth);
+                targetCollider.transform.position = floorCanvas.transform.position;
                 break;
             // top
             default:
@@ -159,6 +182,8 @@ public class makeBalls : MonoBehaviour {
                     = new Vector3(Random.Range(-fieldWidth / 2, fieldWidth / 2),
                     ceilingCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
                     ceilingCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.z);
+                col.size = new Vector3(targetWidth, 0.3f, targetWidth);
+                targetCollider.transform.position = ceilingCanvas.transform.position;
                 break;
         }
 
