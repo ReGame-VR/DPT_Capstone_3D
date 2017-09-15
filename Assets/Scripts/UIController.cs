@@ -5,6 +5,10 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour {
 
+    public int numTrials = 40;
+
+    private int trialsComplete = 0;
+
     [SerializeField]
     private Text text;
 
@@ -19,10 +23,15 @@ public class UIController : MonoBehaviour {
 
     public static TimeUp OnReset;
 
+    private AudioSource onTimeUp;
+
 	// Use this for initialization
 	void Start () {
         TargetCollision.OnTargetHit += this.OnTargetHit;
         ControllerHandler.OnBallGrab += this.UpdateScore;
+        OutOfBounds.OnOutOfBounds += this.OnFail;
+
+        onTimeUp = GetComponent<AudioSource>();
 
         timeLeft = timer;
         score = 0;
@@ -31,7 +40,8 @@ public class UIController : MonoBehaviour {
     void OnDisable()
     {
         TargetCollision.OnTargetHit -= this.OnTargetHit;
-        ControllerHandler.OnBallGrab -= UpdateScore;
+        ControllerHandler.OnBallGrab -= this.UpdateScore;
+        OutOfBounds.OnOutOfBounds -= this.OnFail;
     }
 
     // Update is called once per frame
@@ -42,6 +52,8 @@ public class UIController : MonoBehaviour {
 
         if (timeLeft <= 0)
         {
+            onTimeUp.Play();
+
             if (OnReset != null)
             {
                 OnReset();
@@ -65,6 +77,11 @@ public class UIController : MonoBehaviour {
             OnReset();
         }
 
+        timeLeft = timer;
+    }
+
+    private void OnFail()
+    {
         timeLeft = timer;
     }
 }
