@@ -41,6 +41,7 @@ public class makeBalls : MonoBehaviour {
     // initialization of another ball
     void Start () {
         UIController.OnReset += Reset;
+        OutOfBounds.OnOutOfBounds += Reset;
 
         obj = new GameObject();
 
@@ -58,6 +59,7 @@ public class makeBalls : MonoBehaviour {
     void OnDisable()
     {
         UIController.OnReset -= Reset;
+        OutOfBounds.OnOutOfBounds -= Reset;
     }
 
     private void CreateBall()
