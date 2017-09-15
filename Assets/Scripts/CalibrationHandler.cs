@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class CalibrationHandler : MonoBehaviour {
 
-    public Text text;
+    // public Text text;
 
     // bounds that player can reach
     private float leftCal, rightCal, heightCal;
@@ -46,15 +46,11 @@ public class CalibrationHandler : MonoBehaviour {
             heightCal = posn.y;
         }
 
-        text.text = "\nmax left: " + leftCal
-            + "\nmax right: " + rightCal
-            + "\nmax height: " + heightCal;
-
         // if properly calibrated
         if (Input.GetKeyDown(KeyCode.Space))
         {
             SaveData();
-            SceneManager.LoadScene("catchthrow");
+            SceneManager.LoadScene("environment1");
         }
     }
 

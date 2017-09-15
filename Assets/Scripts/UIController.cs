@@ -19,10 +19,14 @@ public class UIController : MonoBehaviour {
 
     public static TimeUp OnReset;
 
+    private AudioSource onTimeUp;
+
 	// Use this for initialization
 	void Start () {
         TargetCollision.OnTargetHit += this.OnTargetHit;
         ControllerHandler.OnBallGrab += this.UpdateScore;
+
+        onTimeUp = GetComponent<AudioSource>();
 
         timeLeft = timer;
         score = 0;
@@ -42,6 +46,8 @@ public class UIController : MonoBehaviour {
 
         if (timeLeft <= 0)
         {
+            onTimeUp.Play();
+
             if (OnReset != null)
             {
                 OnReset();

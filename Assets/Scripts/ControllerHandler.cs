@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ControllerHandler : MonoBehaviour {
+    // play a sound when caught
+    private AudioSource caughtSound;
+    
     // the ball that the user can grab
     private GameObject collidingObject;
 
@@ -24,6 +27,7 @@ public class ControllerHandler : MonoBehaviour {
     void Awake()
     {
         trackedObj = GetComponent<SteamVR_TrackedObject>();
+        caughtSound = GetComponent<AudioSource>();
     }
 
     private void SetCollidingObject(Collider col)
@@ -58,6 +62,8 @@ public class ControllerHandler : MonoBehaviour {
 
     private void GrabObject()
     {
+        caughtSound.Play();
+
         if (OnBallGrab != null)
         {
             OnBallGrab();

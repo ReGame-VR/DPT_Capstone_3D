@@ -43,7 +43,6 @@ public class makeBalls : MonoBehaviour {
         UIController.OnReset += Reset;
 
         obj = new GameObject();
-        // obj.AddComponent<Transform>();
 
         // disable all targets except for front
         frontCanvas.GetComponent<Image>().enabled = true;
@@ -67,8 +66,10 @@ public class makeBalls : MonoBehaviour {
         int direction = Random.Range(1, 4);
 
         // set the gameobject that the ball will move towards
-        obj.transform.position = new Vector3(Random.Range(GameControl.Instance.leftMax, GameControl.Instance.rightMax),
+        Vector3 posn = new Vector3(Random.Range(GameControl.Instance.leftMax, GameControl.Instance.rightMax),
             Random.Range(0, GameControl.Instance.heightMax), cameraRig.transform.position.z);
+        obj.transform.position = posn;
+        Debug.Log(posn);
 
         // target and ball should not come from same direction 
         while (direction == targetDirection)
