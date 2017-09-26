@@ -17,6 +17,7 @@ public class ControllerHandler : MonoBehaviour {
 
     // broadcast an event every time a ball is grabbed
     public delegate void BallGrabbed();
+
     public static BallGrabbed OnBallGrab;
 
     private SteamVR_Controller.Device Controller

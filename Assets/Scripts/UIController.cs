@@ -29,8 +29,6 @@ public class UIController : MonoBehaviour {
 
     public float fieldHeight;
 
-    private bool isBall; // is there currently a ball?
-
     private Rigidbody newBall; // the new ball that is instantiated 
 
     private int targetDirection = 1;
@@ -61,15 +59,24 @@ public class UIController : MonoBehaviour {
 
     public static TrialsComplete OnTrialsComplete;
 
+    public delegate void TrialComplete (int trialNum, float catchTime,
+        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget);
+
+    public static TrialComplete RecordData;
+
     private AudioSource onTimeUp;
+
+    private bool caught;
 
 	// Use this for initialization
 	void Start () {
         TargetCollision.OnTargetHit += this.Reset;
-        ControllerHandler.OnBallGrab += this.UpdateScore;
+        ControllerHandler.OnBallGrab += this.BallCaught;
         OutOfBounds.OnOutOfBounds += this.OnFail;
 
         onTimeUp = GetComponent<AudioSource>();
+
+        obj = new GameObject();
 
         // disable all targets except for front
         frontCanvas.GetComponent<Image>().enabled = true;
@@ -82,14 +89,12 @@ public class UIController : MonoBehaviour {
         score = 0;
         MoveTarget();
         CreateBall();
-
-        obj = new GameObject();
     }
 
     void OnDisable()
     {
         TargetCollision.OnTargetHit -= this.Reset;
-        ControllerHandler.OnBallGrab -= this.UpdateScore;
+        ControllerHandler.OnBallGrab -= this.BallCaught;
         OutOfBounds.OnOutOfBounds -= this.OnFail;
     }
 
@@ -124,21 +129,32 @@ public class UIController : MonoBehaviour {
 
     private void UpdateScore()
     {
-        score += 5;
+        score += 100;
+    }
+
+    private void BallCaught()
+    {
+        // UpdateScore();
+        caught = true;
     }
 
     private void Reset()
-    { 
+    {
+
+        DestroyBall();
+        caught = false;
+        UpdateScore();
 
         if (currTrial < numTrials)
         {
-            UpdateScore();
 
             if (OnReset != null)
             {
                 OnReset();
             }
 
+            MoveTarget();
+            CreateBall();
             timeLeft = timer;
             currTrial++;
         }
@@ -150,9 +166,8 @@ public class UIController : MonoBehaviour {
 
     private void OnFail()
     {
-        // MoveTarget();
         DestroyBall();
-        // CreateBall();
+        caught = false;
 
         if (currTrial < numTrials)
         {
@@ -169,6 +184,26 @@ public class UIController : MonoBehaviour {
 
     private void OnTrialsOver()
     {
+        // disable last target
+        switch (targetDirection)
+        {
+            case 1:
+                frontCanvas.GetComponent<Image>().enabled = false;
+                break;
+            case 2:
+                leftCanvas.GetComponent<Image>().enabled = false;
+                break;
+            case 3:
+                rightCanvas.GetComponent<Image>().enabled = false;
+                break;
+            case 4:
+                floorCanvas.GetComponent<Image>().enabled = false;
+                break;
+            default:
+                ceilingCanvas.GetComponent<Image>().enabled = false;
+                break;
+        }
+
         text.text = "Congratulations!\nScore: " + score;
 
         if (OnTrialsComplete != null)
@@ -181,7 +216,6 @@ public class UIController : MonoBehaviour {
     {
         if (!isGameOver)
         {
-            isBall = true;
             int direction = Random.Range(1, 4);
 
             // set the gameobject that the ball will move towards
@@ -313,12 +347,10 @@ public class UIController : MonoBehaviour {
             targetDirection = direction;
 
         }
-
     }
 
     private void DestroyBall()
     {
         Destroy(newBall.gameObject);
-        isBall = false;
     }
 }
