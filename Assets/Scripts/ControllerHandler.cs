@@ -20,6 +20,11 @@ public class ControllerHandler : MonoBehaviour {
 
     public static BallGrabbed OnBallGrab;
 
+    // broadcast an event every time a ball is let go of
+    public delegate void BallReleased();
+
+    public static BallReleased OnBallRelease;
+
     private SteamVR_Controller.Device Controller
     {
         get { return SteamVR_Controller.Input((int)trackedObj.index); }
@@ -87,6 +92,11 @@ public class ControllerHandler : MonoBehaviour {
 
     private void ReleaseObject()
     {
+        if (OnBallRelease != null)
+        {
+            OnBallRelease();
+        }
+
         if (GetComponent<FixedJoint>())
         {
             GetComponent<FixedJoint>().connectedBody = null;

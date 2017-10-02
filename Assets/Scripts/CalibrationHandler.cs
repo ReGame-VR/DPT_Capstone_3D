@@ -6,8 +6,6 @@ using UnityEngine.UI;
 
 public class CalibrationHandler : MonoBehaviour {
 
-    // public Text text;
-
     // bounds that player can reach
     private float leftCal, rightCal, heightCal;
 
@@ -59,5 +57,9 @@ public class CalibrationHandler : MonoBehaviour {
         GameControl.Instance.leftMax = leftCal;
         GameControl.Instance.rightMax = rightCal;
         GameControl.Instance.heightMax = heightCal;
+
+        Debug.Log("left cal: " + leftCal);
+        Debug.Log("Right cal: " + rightCal);
+        Debug.Log("Height cal: " + heightCal);
     }
 }

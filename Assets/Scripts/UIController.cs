@@ -5,6 +5,8 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour {
 
+    // - - - - - PUBLIC VARIABLES - - - - -
+
     public Canvas frontCanvas;
 
     public Canvas leftCanvas;
@@ -23,11 +25,30 @@ public class UIController : MonoBehaviour {
 
     public GameObject cameraRig; // the camerarig prefab
 
+    public int numTrials = 40;
+
     public float fieldWidth;
 
     public float fieldDepth;
 
     public float fieldHeight;
+
+    public Text text;
+
+    public float timer = 5f;
+
+    // - - - - - DELEGATES AND EVENTS - - - - -
+
+    public delegate void TrialsComplete();
+
+    public static TrialsComplete OnTrialsComplete;
+
+    public delegate void TrialComplete(int trialNum, float catchTime,
+        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget);
+
+    public static TrialComplete RecordData;
+
+    // - - - - - PRIVATE VARIABLES - - - - -
 
     private Rigidbody newBall; // the new ball that is instantiated 
 
@@ -39,40 +60,31 @@ public class UIController : MonoBehaviour {
 
     private bool isGameOver = false;
 
-    public int numTrials = 40;
-
     private int currTrial = 1;
-
-    public Text text;
-
-    public float timer = 5f;
 
     private float timeLeft;
 
     private int score;
 
-    public delegate void TimeUp();
-
-    public static TimeUp OnReset;
-
-    public delegate void TrialsComplete();
-
-    public static TrialsComplete OnTrialsComplete;
-
-    public delegate void TrialComplete (int trialNum, float catchTime,
-        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget);
-
-    public static TrialComplete RecordData;
-
     private AudioSource onTimeUp;
 
-    private bool caught;
+    // for data recording 
+    private bool caught = false;
+
+    private bool thrown = false;
+
+    private bool targetHit = false;
+
+    private float catchTime = float.PositiveInfinity;
+
+    private float throwTime = float.PositiveInfinity;
 
 	// Use this for initialization
 	void Start () {
-        TargetCollision.OnTargetHit += this.Reset;
+        TargetCollision.OnTargetHit += this.TargetHit;
         ControllerHandler.OnBallGrab += this.BallCaught;
-        OutOfBounds.OnOutOfBounds += this.OnFail;
+        ControllerHandler.OnBallRelease += this.BallReleased;
+        OutOfBounds.OnOutOfBounds += this.Reset;
 
         onTimeUp = GetComponent<AudioSource>();
 
@@ -93,16 +105,17 @@ public class UIController : MonoBehaviour {
 
     void OnDisable()
     {
-        TargetCollision.OnTargetHit -= this.Reset;
+        TargetCollision.OnTargetHit -= this.TargetHit;
         ControllerHandler.OnBallGrab -= this.BallCaught;
-        OutOfBounds.OnOutOfBounds -= this.OnFail;
+        ControllerHandler.OnBallRelease -= this.BallReleased;
+        OutOfBounds.OnOutOfBounds -= this.Reset;
     }
 
     // Update is called once per frame
     void Update()
     {
 
-        if (currTrial < numTrials) {
+        // if (currTrial < numTrials) {
             timeLeft -= Time.deltaTime;
             text.text = "Trial " + currTrial + " of " + numTrials +
                 "\nTime Left:" + Mathf.Round(timeLeft) + "\nScore: " + score;
@@ -110,21 +123,17 @@ public class UIController : MonoBehaviour {
             if (timeLeft <= 0)
             {
                 onTimeUp.Play();
-                currTrial++;
+                // currTrial++;
 
-                if (OnReset != null)
-                {
-                    OnReset();
-                }
+                // timeLeft = timer;
 
-                timeLeft = timer;
-
+                Reset();
             }
-        }
-        else
-        {
-            OnTrialsOver();
-        }
+        //}
+        //else
+        //{
+        //    OnTrialsOver();
+        //}
     }
 
     private void UpdateScore()
@@ -134,25 +143,32 @@ public class UIController : MonoBehaviour {
 
     private void BallCaught()
     {
-        // UpdateScore();
         caught = true;
+        catchTime = timer - timeLeft;
+    }
+
+    private void BallReleased()
+    {
+        thrown = true;
+        throwTime = timer - timeLeft;
     }
 
     private void Reset()
     {
+        if (RecordData != null)
+        {
+            RecordData(currTrial, catchTime, throwTime, caught, thrown, targetHit);
+        }
 
         DestroyBall();
         caught = false;
-        UpdateScore();
+        thrown = false;
+        targetHit = false;
+        throwTime = float.PositiveInfinity;
+        catchTime = float.PositiveInfinity;
 
         if (currTrial < numTrials)
         {
-
-            if (OnReset != null)
-            {
-                OnReset();
-            }
-
             MoveTarget();
             CreateBall();
             timeLeft = timer;
@@ -164,22 +180,14 @@ public class UIController : MonoBehaviour {
         }
     }
 
-    private void OnFail()
+    private void TargetHit()
     {
-        DestroyBall();
-        caught = false;
+        if (caught) {
+            targetHit = true;
+            UpdateScore();
+        }
 
-        if (currTrial < numTrials)
-        {
-            MoveTarget();
-            CreateBall();
-            currTrial++;
-            timeLeft = timer;
-        }
-        else
-        {
-            OnTrialsOver();
-        }
+        Reset();
     }
 
     private void OnTrialsOver()
@@ -254,6 +262,7 @@ public class UIController : MonoBehaviour {
                     break;
             }
 
+            caught = false;
             newBall = Instantiate(Ball, new Vector3(x, y, z), Ball.transform.rotation);
             newBall.transform.LookAt(obj.transform);
             newBall.AddRelativeForce(Vector3.forward * speed, ForceMode.Acceleration);
@@ -286,8 +295,8 @@ public class UIController : MonoBehaviour {
                 break;
         }
 
-        if (!isGameOver)
-        {
+        //if (!isGameOver)
+        //{
 
             // now rotate and move to appropriate spot along with collider
             switch (direction)
@@ -346,7 +355,7 @@ public class UIController : MonoBehaviour {
 
             targetDirection = direction;
 
-        }
+        //}
     }
 
     private void DestroyBall()
