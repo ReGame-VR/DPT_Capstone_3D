@@ -20,14 +20,9 @@ public class ReachCollider : MonoBehaviour {
             cameraRig.transform.position.y + GameControl.Instance.heightMax / 2, 
             cameraRig.transform.position.z);
         bc.size = new Vector3(System.Math.Abs(GameControl.Instance.leftMax) 
-            + GameControl.Instance.rightMax, GameControl.Instance.heightMax *2f,
+            + GameControl.Instance.rightMax, GameControl.Instance.heightMax,
             System.Math.Abs(GameControl.Instance.leftMax) + GameControl.Instance.rightMax);
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
 	}
 
     public void OnTriggerEnter(Collider other)

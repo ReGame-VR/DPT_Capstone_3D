@@ -18,9 +18,28 @@ public class DataHandler : MonoBehaviour {
     {
         using (CsvFileWriter writer = new CsvFileWriter(@"Data/test.csv"))
         {
+            CsvRow header = new CsvRow();
+            header.Add("Trial #");
+            header.Add("Catch Time");
+            header.Add("Throw Time");
+            header.Add("Caught");
+            header.Add("Thrown");
+            header.Add("Hit Target");
+
+            writer.WriteRow(header);
+
             foreach (Data d in data)
             {
-                // do the thing
+                CsvRow row = new CsvRow();
+
+                row.Add(d.trialNum.ToString());
+                row.Add(d.catchTime.ToString());
+                row.Add(d.throwTime.ToString());
+                row.Add(d.wasCaught.ToString());
+                row.Add(d.wasThrown.ToString());
+                row.Add(d.hitTarget.ToString());
+
+                writer.WriteRow(row);
             }
         }
 
@@ -33,11 +52,11 @@ public class DataHandler : MonoBehaviour {
         data.Add(new Data(trialNum, catchTime, throwTime, wasCaught, wasThrown, hitTarget));
     }
 
-    private class Data
+    class Data
     {
-        int trialNum;
-        float catchTime, throwTime;
-        bool wasCaught, wasThrown, hitTarget;
+        public readonly int trialNum;
+        public readonly float catchTime, throwTime;
+        public readonly bool wasCaught, wasThrown, hitTarget;
 
         public Data(int trialNum, float catchTime, float throwTime, 
             bool wasCaught, bool wasThrown, bool hitTarget)

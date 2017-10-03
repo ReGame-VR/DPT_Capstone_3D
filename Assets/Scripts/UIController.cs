@@ -64,7 +64,7 @@ public class UIController : MonoBehaviour {
 
     private float timeLeft;
 
-    private int score;
+    private int score = 0;
 
     private AudioSource onTimeUp;
 
@@ -79,7 +79,9 @@ public class UIController : MonoBehaviour {
 
     private float throwTime = float.PositiveInfinity;
 
-	// Use this for initialization
+	/// <summary>
+    /// Subscribe to events and initialize values.
+    /// </summary>
 	void Start () {
         TargetCollision.OnTargetHit += this.TargetHit;
         ControllerHandler.OnBallGrab += this.BallCaught;
@@ -87,7 +89,7 @@ public class UIController : MonoBehaviour {
         OutOfBounds.OnOutOfBounds += this.Reset;
 
         onTimeUp = GetComponent<AudioSource>();
-
+        timeLeft = timer;
         obj = new GameObject();
 
         // disable all targets except for front
@@ -97,12 +99,13 @@ public class UIController : MonoBehaviour {
         ceilingCanvas.GetComponent<Image>().enabled = false;
         floorCanvas.GetComponent<Image>().enabled = false;
 
-        timeLeft = timer;
-        score = 0;
         MoveTarget();
         CreateBall();
     }
 
+    /// <summary>
+    /// Unsubscribe to events.
+    /// </summary>
     void OnDisable()
     {
         TargetCollision.OnTargetHit -= this.TargetHit;
@@ -111,11 +114,13 @@ public class UIController : MonoBehaviour {
         OutOfBounds.OnOutOfBounds -= this.Reset;
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// Update is called every frame and handles the timer, delay between trials, 
+    /// and trial reset.
+    /// </summary>
     void Update()
     {
-
-        // if (currTrial < numTrials) {
+        if (!isGameOver) {
             timeLeft -= Time.deltaTime;
             text.text = "Trial " + currTrial + " of " + numTrials +
                 "\nTime Left:" + Mathf.Round(timeLeft) + "\nScore: " + score;
@@ -123,36 +128,32 @@ public class UIController : MonoBehaviour {
             if (timeLeft <= 0)
             {
                 onTimeUp.Play();
-                // currTrial++;
-
-                // timeLeft = timer;
-
                 Reset();
             }
-        //}
-        //else
-        //{
-        //    OnTrialsOver();
-        //}
+        }
     }
 
-    private void UpdateScore()
-    {
-        score += 100;
-    }
-
+    /// <summary>
+    /// Record that the ball was caught and at what time.
+    /// </summary>
     private void BallCaught()
     {
         caught = true;
         catchTime = timer - timeLeft;
     }
 
+    /// <summary>
+    /// Record that the ball was thrown and at what time.
+    /// </summary>
     private void BallReleased()
     {
         thrown = true;
-        throwTime = timer - timeLeft;
+        throwTime = timer - timeLeft - catchTime;
     }
 
+    /// <summary>
+    /// Reset for the next trial, and record the data from this trial.
+    /// </summary>
     private void Reset()
     {
         if (RecordData != null)
@@ -176,20 +177,27 @@ public class UIController : MonoBehaviour {
         }
         else
         {
+            isGameOver = true;
             OnTrialsOver();
         }
     }
 
+    /// <summary>
+    /// Called when the target is hit, and increases score if the ball was thrown.
+    /// </summary>
     private void TargetHit()
     {
-        if (caught) {
+        if (caught && thrown) {
             targetHit = true;
-            UpdateScore();
+            score += 100;
         }
 
         Reset();
     }
 
+    /// <summary>
+    /// Called once all trials are over
+    /// </summary>
     private void OnTrialsOver()
     {
         // disable last target
@@ -220,6 +228,9 @@ public class UIController : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Create a ball coming from a random direction.
+    /// </summary>
     private void CreateBall()
     {
         if (!isGameOver)
@@ -269,6 +280,9 @@ public class UIController : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Creates target in a random direction.
+    /// </summary>
     private void MoveTarget()
     {
         int direction = Random.Range(1, 6);
@@ -295,9 +309,8 @@ public class UIController : MonoBehaviour {
                 break;
         }
 
-        //if (!isGameOver)
-        //{
-
+        if (!isGameOver)
+        {
             // now rotate and move to appropriate spot along with collider
             switch (direction)
             {
@@ -354,8 +367,7 @@ public class UIController : MonoBehaviour {
             }
 
             targetDirection = direction;
-
-        //}
+        }
     }
 
     private void DestroyBall()
