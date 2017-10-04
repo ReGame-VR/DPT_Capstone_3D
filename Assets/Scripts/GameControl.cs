@@ -9,6 +9,8 @@ public class GameControl : MonoBehaviour {
     public float rightMax = 1f;
     public float leftMax = 1f;
     public float heightMax = 1.5f;
+    public int difficulty = 0;
+    public string participantID;
 
 	void Awake () {
         if (Instance == null)
