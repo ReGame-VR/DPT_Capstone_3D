@@ -10,7 +10,8 @@ public class GameControl : MonoBehaviour {
     public float leftMax = 1f;
     public float heightMax = 1.5f;
     public int difficulty = 0;
-    public string participantID;
+    public int numTrials = 10;
+    public string participantID = "default";
 
 	void Awake () {
         if (Instance == null)

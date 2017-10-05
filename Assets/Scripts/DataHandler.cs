@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using ReadWriteCSV;
 
-
+/// <summary>
+/// Saves trial data in a list, then writes to a file when the game is closed. 
+/// </summary>
 public class DataHandler : MonoBehaviour {
 
     private List<Data> data = new List<Data>();

@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/// <summary>
+/// Creates the trigger collider that changes the color of the ball when in reach.
+/// </summary>
 public class ReachCollider : MonoBehaviour {
 
     public Material outOfBounds;
