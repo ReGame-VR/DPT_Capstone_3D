@@ -19,7 +19,7 @@ public class OutOfBounds : MonoBehaviour {
         miss = GetComponent<AudioSource>();
     }
 	
-    public void OnTriggerEnter(Collider other)
+    public void OnTriggerExit(Collider other)
     {
         miss.Play();
 
