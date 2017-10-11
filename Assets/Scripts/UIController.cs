@@ -37,7 +37,7 @@ public class UIController : MonoBehaviour {
 
     public Text text;
 
-    public float timer = 5f;
+    public float timer = 10f;
 
     // - - - - - DELEGATES AND EVENTS - - - - -
 
@@ -76,7 +76,7 @@ public class UIController : MonoBehaviour {
 
     private int scoreDecay; // subtract from score every scoreDecay frames
 
-    private float elapsedDelay = 0; // how many seconds have elapsed in the delay
+    private int numFrames = 0;
 
     private AudioSource onTimeUp; // played when time is up
 
@@ -98,10 +98,9 @@ public class UIController : MonoBehaviour {
         TargetCollision.OnTargetHit += this.TargetHit;
         ControllerHandler.OnBallGrab += this.BallCaught;
         ControllerHandler.OnBallRelease += this.BallReleased;
-        OutOfBounds.OnOutOfBounds += this.TimeToZero;
+        OutOfBounds.OnOutOfBounds += this.OnOutOfBounds;
 
         onTimeUp = GetComponent<AudioSource>();
-        timeLeft = timer;
         obj = new GameObject();
         this.numTrials = GameControl.Instance.numTrials;
 
@@ -126,6 +125,9 @@ public class UIController : MonoBehaviour {
         ceilingCanvas.GetComponent<Image>().enabled = false;
         floorCanvas.GetComponent<Image>().enabled = false;
 
+        timer += restPeriod;
+        timeLeft = timer;
+
         MoveTarget();
         CreateBall();
     }
@@ -138,7 +140,7 @@ public class UIController : MonoBehaviour {
         TargetCollision.OnTargetHit -= this.TargetHit;
         ControllerHandler.OnBallGrab -= this.BallCaught;
         ControllerHandler.OnBallRelease -= this.BallReleased;
-        OutOfBounds.OnOutOfBounds -= this.TimeToZero;
+        OutOfBounds.OnOutOfBounds -= this.OnOutOfBounds;
     }
 
     /// <summary>
@@ -152,17 +154,23 @@ public class UIController : MonoBehaviour {
             text.text = /*"Trial " + currTrial + " of " + numTrials +
                 "\nTime Left: " + Mathf.Round(timeLeft) +*/ "Score: " + score;
 
-            if (timeLeft <= 0)
+            if (timeLeft <= restPeriod)
             {
-                Debug.Log("entered loop");
-                onTimeUp.Play();
-                DestroyBall();
-                disableTarget();
-
-                if (elapsedDelay < restPeriod) {
+                // delete ball and play sound, but only if ball has not been destroyed by other functions
+                if (newBall)
+                {
+                    onTimeUp.Play();
+                    DestroyBall();
+                    disableTarget();
+                }
+                /*if (elapsedDelay <= restPeriod) {
                     elapsedDelay += Time.deltaTime;
                 }
                 else
+                {
+                    Reset();
+                }*/
+                if (timeLeft <= 0)
                 {
                     Reset();
                 }
@@ -171,10 +179,11 @@ public class UIController : MonoBehaviour {
     }
 
 
-    private void TimeToZero()
+    private void OnOutOfBounds()
     {
-        timeLeft = 0;
-        // DestroyBall();
+        timeLeft = restPeriod;
+        DestroyBall();
+        disableTarget();
     }
 
 
@@ -218,7 +227,6 @@ public class UIController : MonoBehaviour {
             MoveTarget();
             CreateBall();
             timeLeft = timer;
-            elapsedDelay = 0f;
             currTrial++;
         }
         else
@@ -237,8 +245,10 @@ public class UIController : MonoBehaviour {
             targetHit = true;
             score += 100;
         }
+        DestroyBall();
+        disableTarget();
 
-        timeLeft = 0f;
+        timeLeft = restPeriod;
     }
 
     /// <summary>

@@ -16,6 +16,14 @@ public class ReachCollider : MonoBehaviour {
 
     private BoxCollider bc;
 
+    public delegate void InReach();
+
+    public static InReach IsInReach;
+
+    public delegate void OutOfReach();
+
+    public static OutOfReach IsOutOfReach;
+
 	// Use this for initialization
 	void Start () {
         bc = gameObject.GetComponent<BoxCollider>();

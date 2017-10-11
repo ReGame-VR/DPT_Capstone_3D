@@ -9,16 +9,20 @@ using ReadWriteCSV;
 public class DataHandler : MonoBehaviour {
 
     private List<Data> data = new List<Data>();
+    private string fileName;
 
 	// Use this for initialization
 	void Awake()
     {
         UIController.RecordData += AddLine;
+        System.DateTime today = System.DateTime.Today;
+        fileName = GameControl.Instance.participantID + "_" + today.ToString("d").Replace('/','_');
+        Debug.Log(fileName);
 	}
 
     void OnDisable()
     {
-        using (CsvFileWriter writer = new CsvFileWriter(@"Data/test.csv"))
+        using (CsvFileWriter writer = new CsvFileWriter(@"Data/" + fileName + ".csv"))
         {
             CsvRow header = new CsvRow();
             header.Add("Trial #");
