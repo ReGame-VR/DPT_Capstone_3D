@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class CalibrationHandler : MonoBehaviour {
 
     // bounds that player can reach
-    private float leftCal, rightCal, heightCal;
+    private float leftCal, rightCal, heightCal, forwardCal;
 
     // the controller
     private SteamVR_TrackedObject trackedObj;
@@ -22,6 +22,7 @@ public class CalibrationHandler : MonoBehaviour {
         leftCal = 0f;
         rightCal = 0f;
         heightCal = 0f;
+        forwardCal = 0f;
     }
 	
 	// Update is called once per frame
@@ -44,6 +45,12 @@ public class CalibrationHandler : MonoBehaviour {
             heightCal = posn.y;
         }
 
+        // reach calibration
+        if (posn.z > forwardCal)
+        {
+            forwardCal = posn.z;
+        }
+
         // if properly calibrated
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -57,9 +64,6 @@ public class CalibrationHandler : MonoBehaviour {
         GameControl.Instance.leftMax = leftCal;
         GameControl.Instance.rightMax = rightCal;
         GameControl.Instance.heightMax = heightCal;
-
-        Debug.Log("left cal: " + leftCal);
-        Debug.Log("Right cal: " + rightCal);
-        Debug.Log("Height cal: " + heightCal);
+        GameControl.Instance.reachMax = forwardCal;
     }
 }

@@ -29,12 +29,6 @@ public class UIController : MonoBehaviour {
 
     public GameObject cameraRig; // the camerarig prefab
 
-    public float fieldWidth;
-
-    public float fieldDepth;
-
-    public float fieldHeight;
-
     public Text text;
 
     public float timer = 10f;
@@ -80,6 +74,14 @@ public class UIController : MonoBehaviour {
 
     private AudioSource onTimeUp; // played when time is up
 
+    private float fieldWidth = 10;
+
+    private float fieldDepth = 10;
+
+    private float fieldHeight = 7;
+
+    private float offsetSize;
+
     // for data recording 
     private bool caught = false;
 
@@ -118,6 +120,8 @@ public class UIController : MonoBehaviour {
 
         targetCollider.transform.localScale = targetCollider.transform.localScale * Difficulty.sunScale[difficulty];
 
+        offsetSize = targetWidth * Difficulty.sunScale[difficulty] / 2;
+        
         // disable all targets except for front
         frontCanvas.GetComponent<Image>().enabled = true;
         leftCanvas.GetComponent<Image>().enabled = false;
@@ -244,11 +248,12 @@ public class UIController : MonoBehaviour {
         if (caught && thrown) {
             targetHit = true;
             score += 100;
-        }
-        DestroyBall();
-        disableTarget();
 
-        timeLeft = restPeriod;
+            DestroyBall();
+            disableTarget();
+
+            timeLeft = restPeriod;
+        }
     }
 
     /// <summary>
@@ -298,23 +303,26 @@ public class UIController : MonoBehaviour {
     {
         if (!isGameOver)
         {
-            int direction = Random.Range(1, 4);
+            // int direction = Random.Range(1, 4);
 
             // set the gameobject that the ball will move towards
             Vector3 posn = new Vector3(Random.Range(GameControl.Instance.leftMax, GameControl.Instance.rightMax),
                 Random.Range(0, GameControl.Instance.heightMax), cameraRig.transform.position.z);
             obj.transform.position = posn;
 
-            // target and ball should not come from same direction 
+            /* target and ball should not come from same direction 
             while (direction == targetDirection)
             {
                 direction = Random.Range(1, 4);
-            }
+            }*/
 
             float x, y, z;
 
+            x = Random.Range(cameraRig.transform.position.x - fieldWidth / 2f, cameraRig.transform.position.x + fieldWidth / 2f);
+            z = cameraRig.transform.position.z + fieldDepth;
             y = Random.Range(cameraRig.transform.position.y, fieldHeight);
 
+            /*
             switch (direction)
             {
                 // comes from front
@@ -334,7 +342,7 @@ public class UIController : MonoBehaviour {
                     x = cameraRig.transform.position.x + fieldWidth / 2;
                     z = Random.Range(cameraRig.transform.position.z, cameraRig.transform.position.z + fieldDepth);
                     break;
-            }
+            }*/
 
             caught = false;
             newBall = Instantiate(Ball, new Vector3(x, y, z), Ball.transform.rotation);
@@ -382,7 +390,8 @@ public class UIController : MonoBehaviour {
                 case 1:
                     frontCanvas.GetComponent<Image>().enabled = true;
                     frontCanvas.GetComponent<Image>().GetComponent<RectTransform>().position
-                        = new Vector3(Random.Range(-fieldWidth / 2, fieldWidth / 2),
+                        = new Vector3(Random.Range(-fieldWidth / 2 + offsetSize, 
+                        fieldWidth / 2 - offsetSize),
                         frontCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
                         frontCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.z);
                     col.size = new Vector3(targetWidth, targetWidth, 0.3f);
@@ -394,7 +403,7 @@ public class UIController : MonoBehaviour {
                     leftCanvas.GetComponent<Image>().GetComponent<RectTransform>().position
                         = new Vector3(leftCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.x,
                         leftCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
-                        Random.Range(0, fieldDepth));
+                        Random.Range(offsetSize, fieldDepth - offsetSize));
                     col.size = new Vector3(0.3f, targetWidth, targetWidth);
                     targetCollider.transform.position = leftCanvas.transform.position;
                     break;
@@ -404,7 +413,7 @@ public class UIController : MonoBehaviour {
                     rightCanvas.GetComponent<Image>().GetComponent<RectTransform>().position
                         = new Vector3(rightCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.x,
                         rightCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
-                        Random.Range(0, fieldDepth));
+                        Random.Range(offsetSize, fieldDepth - offsetSize));
                     col.size = new Vector3(0.3f, targetWidth, targetWidth);
                     targetCollider.transform.position = rightCanvas.transform.position;
                     break;
@@ -412,7 +421,7 @@ public class UIController : MonoBehaviour {
                 case 4:
                     floorCanvas.GetComponent<Image>().enabled = true;
                     floorCanvas.GetComponent<Image>().GetComponent<RectTransform>().position
-                        = new Vector3(Random.Range(-fieldWidth / 2, fieldWidth / 2),
+                        = new Vector3(Random.Range(-fieldWidth / 2 + offsetSize, fieldWidth / 2 - offsetSize),
                         floorCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
                         floorCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.z);
                     col.size = new Vector3(targetWidth, 0.3f, targetWidth);
@@ -422,7 +431,7 @@ public class UIController : MonoBehaviour {
                 default:
                     ceilingCanvas.GetComponent<Image>().enabled = true;
                     ceilingCanvas.GetComponent<Image>().GetComponent<RectTransform>().position
-                        = new Vector3(Random.Range(-fieldWidth / 2, fieldWidth / 2),
+                        = new Vector3(Random.Range(-fieldWidth / 2 + offsetSize, fieldWidth / 2 - offsetSize),
                         ceilingCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.y,
                         ceilingCanvas.GetComponent<Image>().GetComponent<RectTransform>().position.z);
                     col.size = new Vector3(targetWidth, 0.3f, targetWidth);

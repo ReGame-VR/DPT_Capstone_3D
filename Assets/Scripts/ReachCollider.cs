@@ -16,6 +16,8 @@ public class ReachCollider : MonoBehaviour {
 
     private BoxCollider bc;
 
+    private bool caught;
+
     public delegate void InReach();
 
     public static InReach IsInReach;
@@ -33,7 +35,7 @@ public class ReachCollider : MonoBehaviour {
             cameraRig.transform.position.z);
         bc.size = new Vector3(System.Math.Abs(GameControl.Instance.leftMax) 
             + GameControl.Instance.rightMax, GameControl.Instance.heightMax,
-            System.Math.Abs(GameControl.Instance.leftMax) + GameControl.Instance.rightMax);
+            GameControl.Instance.reachMax * 2);
 
 	}
 

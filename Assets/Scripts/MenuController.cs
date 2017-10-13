@@ -19,6 +19,25 @@ public class MenuController : MonoBehaviour {
         GameControl.Instance.difficulty = diff;
     }
 
+    public void SetSessionType(int type)
+    {
+        switch (type)
+        {
+            case 0:
+                GameControl.Instance.label = SessionLabels.ACQUISITION;
+                break;
+            case 1:
+                GameControl.Instance.label = SessionLabels.RETENTION;
+                break;
+            case 2:
+                GameControl.Instance.label = SessionLabels.RETENTION_DISTRACTION;
+                break;
+            case 3:
+                GameControl.Instance.label = SessionLabels.TRANSFER;
+                break;
+        }
+    }
+
     public void StartTrials()
     {
         SceneManager.LoadScene("Calibrate");
@@ -38,4 +57,9 @@ public class MenuController : MonoBehaviour {
     {
         VRSettings.enabled = true;
     }
+
+    public enum SessionLabels
+    {
+        ACQUISITION, RETENTION, RETENTION_DISTRACTION, TRANSFER
+    };
 }
