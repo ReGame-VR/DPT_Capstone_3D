@@ -111,6 +111,7 @@ public class ControllerHandler : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
+        /*
         if (Controller.GetHairTriggerDown())
         {
             if (collidingObject)
@@ -119,6 +120,24 @@ public class ControllerHandler : MonoBehaviour {
             }
         }
 
+        if (Controller.GetHairTriggerUp())
+        {
+            if (objectInHand)
+            {
+                ReleaseObject();
+            }
+        }*/
+
+        // if colliding object
+        if (Controller.GetHairTriggerDown())
+        {
+            if (collidingObject)
+            {
+                GrabObject();
+            }
+        }
+
+        // if velocity > certain amount release
         if (Controller.GetHairTriggerUp())
         {
             if (objectInHand)

@@ -154,6 +154,11 @@ public class UIController : MonoBehaviour {
     void Update()
     {
         if (!isGameOver) {
+            if (newBall)
+            {
+                Debug.Log(newBall.GetComponent<Rigidbody>().velocity);
+            }
+            
             timeLeft -= Time.deltaTime;
             text.text = /*"Trial " + currTrial + " of " + numTrials +
                 "\nTime Left: " + Mathf.Round(timeLeft) +*/ "Score: " + score;
@@ -306,15 +311,9 @@ public class UIController : MonoBehaviour {
             // int direction = Random.Range(1, 4);
 
             // set the gameobject that the ball will move towards
-            Vector3 posn = new Vector3(Random.Range(GameControl.Instance.leftMax, GameControl.Instance.rightMax),
+            Vector3 posn = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.3f, GameControl.Instance.rightMax - 0.3f),
                 Random.Range(0, GameControl.Instance.heightMax), cameraRig.transform.position.z);
             obj.transform.position = posn;
-
-            /* target and ball should not come from same direction 
-            while (direction == targetDirection)
-            {
-                direction = Random.Range(1, 4);
-            }*/
 
             float x, y, z;
 
