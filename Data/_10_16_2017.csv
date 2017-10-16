@@ -1,0 +1,7 @@
+Trial #,Catch Time,Throw Time,Caught,Thrown,Hit Target
+1,Infinity,Infinity,False,False,False
+2,2.892721,1.877319,True,True,False
+3,Infinity,Infinity,False,False,False
+4,Infinity,Infinity,False,False,False
+5,3.161982,1.160933,True,True,True
+6,Infinity,Infinity,False,False,False

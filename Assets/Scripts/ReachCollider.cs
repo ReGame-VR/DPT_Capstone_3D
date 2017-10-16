@@ -16,7 +16,7 @@ public class ReachCollider : MonoBehaviour {
 
     private BoxCollider bc;
 
-    private bool caught;
+    private bool caught; // once ball is caught, stay green
 
     public delegate void InReach();
 
@@ -27,7 +27,9 @@ public class ReachCollider : MonoBehaviour {
     public static OutOfReach IsOutOfReach;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
+        ControllerHandler.OnBallGrab += wasCaught;
+
         bc = gameObject.GetComponent<BoxCollider>();
 
         bc.center = new Vector3(cameraRig.transform.position.x, 
@@ -38,6 +40,11 @@ public class ReachCollider : MonoBehaviour {
             GameControl.Instance.reachMax * 2);
 
 	}
+
+    void OnDisable()
+    {
+        ControllerHandler.OnBallGrab -= wasCaught;
+    }
 
     public void OnTriggerEnter(Collider other)
     {
@@ -70,6 +77,14 @@ public class ReachCollider : MonoBehaviour {
 
     private void ToOutofBounds(GameObject ball)
     {
-        ball.GetComponent<Renderer>().material = outOfBounds;
+        if (!caught)
+        {
+            ball.GetComponent<Renderer>().material = outOfBounds;
+        }
+    }
+
+    private void wasCaught()
+    {
+        caught = true;
     }
 }
