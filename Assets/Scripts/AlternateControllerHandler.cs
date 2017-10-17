@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ControllerHandler : MonoBehaviour {
+public class AlternateControllerHandler : MonoBehaviour {
+    public float threshold = 6f;
+
     // play a sound when caught
     private AudioSource caughtSound;
-    
+
     // the ball that the user can grab
     private GameObject collidingObject;
 
@@ -77,7 +79,7 @@ public class ControllerHandler : MonoBehaviour {
 
         objectInHand = collidingObject;
         collidingObject = null;
- 
+
         var joint = AddFixedJoint();
         joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
     }
@@ -110,16 +112,16 @@ public class ControllerHandler : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
-        if (Controller.GetHairTriggerDown())
+    void Update()
+    {
+        // if colliding object
+        if (collidingObject)
         {
-            if (collidingObject)
-            {
-                GrabObject();
-            }
+            GrabObject();
         }
 
-        if (Controller.GetHairTriggerUp())
+        // if velocity > certain amount release
+        if (GetComponent<Rigidbody>().velocity.magnitude > 1f)
         {
             if (objectInHand)
             {

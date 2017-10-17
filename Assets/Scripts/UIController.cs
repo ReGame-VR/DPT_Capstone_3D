@@ -154,10 +154,10 @@ public class UIController : MonoBehaviour {
     void Update()
     {
         if (!isGameOver) {
-            if (newBall)
+            /*if (newBall)
             {
-                Debug.Log(newBall.GetComponent<Rigidbody>().velocity);
-            }
+                Debug.Log(newBall.GetComponent<Rigidbody>().velocity.magnitude);
+            }*/
             
             timeLeft -= Time.deltaTime;
             text.text = /*"Trial " + currTrial + " of " + numTrials +
@@ -210,6 +210,8 @@ public class UIController : MonoBehaviour {
     /// </summary>
     private void BallReleased()
     {
+        Debug.Log("Thrown: " + newBall.GetComponent<Rigidbody>().velocity.magnitude);
+
         thrown = true;
         throwTime = timer - timeLeft - catchTime;
     }
