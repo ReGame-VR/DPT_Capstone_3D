@@ -98,8 +98,8 @@ public class UIController : MonoBehaviour {
     /// </summary>
 	void Start () {
         TargetCollision.OnTargetHit += this.TargetHit;
-        ControllerHandler.OnBallGrab += this.BallCaught;
-        ControllerHandler.OnBallRelease += this.BallReleased;
+        AlternateControllerHandler.OnBallGrab += this.BallCaught;
+        AlternateControllerHandler.OnBallRelease += this.BallReleased;
         OutOfBounds.OnOutOfBounds += this.OnOutOfBounds;
 
         onTimeUp = GetComponent<AudioSource>();
@@ -142,8 +142,8 @@ public class UIController : MonoBehaviour {
     void OnDisable()
     {
         TargetCollision.OnTargetHit -= this.TargetHit;
-        ControllerHandler.OnBallGrab -= this.BallCaught;
-        ControllerHandler.OnBallRelease -= this.BallReleased;
+        AlternateControllerHandler.OnBallGrab -= this.BallCaught;
+        AlternateControllerHandler.OnBallRelease -= this.BallReleased;
         OutOfBounds.OnOutOfBounds -= this.OnOutOfBounds;
     }
 
@@ -173,13 +173,6 @@ public class UIController : MonoBehaviour {
                     MoveTarget();
                     //disableTarget();
                 }
-                /*if (elapsedDelay <= restPeriod) {
-                    elapsedDelay += Time.deltaTime;
-                }
-                else
-                {
-                    Reset();
-                }*/
                 if (timeLeft <= 0)
                 {
                     Reset();
@@ -212,8 +205,7 @@ public class UIController : MonoBehaviour {
     /// </summary>
     private void BallReleased()
     {
-        Debug.Log("Thrown: " + newBall.GetComponent<Rigidbody>().velocity.magnitude);
-
+        // Debug.Log("Thrown: " + newBall.GetComponent<Rigidbody>().velocity.magnitude);
         thrown = true;
         throwTime = timer - timeLeft - catchTime;
     }
@@ -236,7 +228,7 @@ public class UIController : MonoBehaviour {
 
         if (currTrial < numTrials)
         {
-            MoveTarget();
+            // MoveTarget();
             CreateBall();
             timeLeft = timer;
             currTrial++;

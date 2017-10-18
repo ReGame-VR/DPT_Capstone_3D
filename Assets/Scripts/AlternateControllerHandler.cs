@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class AlternateControllerHandler : MonoBehaviour {
-    public float threshold = 6f;
+    private float threshold = 0.05f;
 
     // play a sound when caught
     private AudioSource caughtSound;
@@ -114,6 +114,8 @@ public class AlternateControllerHandler : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        Debug.Log(Controller.velocity.magnitude);
+        
         // if colliding object
         if (collidingObject)
         {
@@ -121,7 +123,7 @@ public class AlternateControllerHandler : MonoBehaviour {
         }
 
         // if velocity > certain amount release
-        if (GetComponent<Rigidbody>().velocity.magnitude > threshold)
+        if (Controller.velocity.magnitude >= threshold)
         {
             Debug.Log("Above velocity threshold");
             if (objectInHand)
