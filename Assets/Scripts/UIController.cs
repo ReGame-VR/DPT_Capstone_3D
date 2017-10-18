@@ -170,7 +170,8 @@ public class UIController : MonoBehaviour {
                 {
                     onTimeUp.Play();
                     DestroyBall();
-                    disableTarget();
+                    MoveTarget();
+                    //disableTarget();
                 }
                 /*if (elapsedDelay <= restPeriod) {
                     elapsedDelay += Time.deltaTime;
@@ -192,7 +193,8 @@ public class UIController : MonoBehaviour {
     {
         timeLeft = restPeriod;
         DestroyBall();
-        disableTarget();
+        MoveTarget();
+        // disableTarget();
     }
 
 
@@ -226,7 +228,6 @@ public class UIController : MonoBehaviour {
             RecordData(currTrial, catchTime, throwTime, caught, thrown, targetHit);
         }
 
-        // DestroyBall();
         caught = false;
         thrown = false;
         targetHit = false;
@@ -257,7 +258,8 @@ public class UIController : MonoBehaviour {
             score += 100;
 
             DestroyBall();
-            disableTarget();
+            MoveTarget();
+            // disableTarget();
 
             timeLeft = restPeriod;
         }
@@ -361,25 +363,6 @@ public class UIController : MonoBehaviour {
 
         BoxCollider col = targetCollider.GetComponent<BoxCollider>();
 
-        // disable whichever target was previously enabled
-        /*switch (targetDirection)
-        {
-            case 1:
-                frontCanvas.GetComponent<Image>().enabled = false;
-                break;
-            case 2:
-                leftCanvas.GetComponent<Image>().enabled = false;
-                break;
-            case 3:
-                rightCanvas.GetComponent<Image>().enabled = false;
-                break;
-            case 4:
-                floorCanvas.GetComponent<Image>().enabled = false;
-                break;
-            default:
-                ceilingCanvas.GetComponent<Image>().enabled = false;
-                break;
-        }*/
         disableTarget();
 
         if (!isGameOver)

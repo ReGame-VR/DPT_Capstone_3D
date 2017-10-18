@@ -14,10 +14,27 @@ public class DataHandler : MonoBehaviour {
 	// Use this for initialization
 	void Awake()
     {
+        string identifier;
+
+        switch (GameControl.Instance.label)
+        {
+            case MenuController.SessionLabels.ACQUISITION:
+                identifier = "_aquisition";
+                break;
+            case MenuController.SessionLabels.RETENTION:
+                identifier = "_retention";
+                break;
+            case MenuController.SessionLabels.RETENTION_DISTRACTION:
+                identifier = "_retention_distraction";
+                break;
+            default: // else transfer
+                identifier = "_transfer";
+                break;
+        }
+
         UIController.RecordData += AddLine;
         System.DateTime today = System.DateTime.Today;
-        fileName = GameControl.Instance.participantID + "_" + today.ToString("d").Replace('/','_');
-        Debug.Log(fileName);
+        fileName = GameControl.Instance.participantID + "_" + today.ToString("d").Replace('/','_') + identifier;
 	}
 
     void OnDisable()

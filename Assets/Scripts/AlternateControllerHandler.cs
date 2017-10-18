@@ -121,8 +121,9 @@ public class AlternateControllerHandler : MonoBehaviour {
         }
 
         // if velocity > certain amount release
-        if (GetComponent<Rigidbody>().velocity.magnitude > 1f)
+        if (GetComponent<Rigidbody>().velocity.magnitude > threshold)
         {
+            Debug.Log("Above velocity threshold");
             if (objectInHand)
             {
                 ReleaseObject();
