@@ -73,6 +73,10 @@ public class ReachCollider : MonoBehaviour {
     private void ToInBounds(GameObject ball)
     {
         ball.GetComponent<Renderer>().material = inBounds;
+        if (IsInReach != null)
+        {
+            IsInReach();
+        }
     }
 
     private void ToOutofBounds(GameObject ball)
@@ -80,6 +84,10 @@ public class ReachCollider : MonoBehaviour {
         if (!caught)
         {
             ball.GetComponent<Renderer>().material = outOfBounds;
+        }
+        if (IsOutOfReach != null)
+        {
+            IsOutOfReach();
         }
     }
 

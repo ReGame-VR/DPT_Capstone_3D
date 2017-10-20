@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class AlternateControllerHandler : MonoBehaviour {
-    private float threshold = 0.05f;
+    private float threshold = 1f;
 
     // play a sound when caught
     private AudioSource caughtSound;
@@ -14,8 +14,11 @@ public class AlternateControllerHandler : MonoBehaviour {
     // the ball that the user is holding
     private GameObject objectInHand;
 
-    // the controller
-    private SteamVR_TrackedObject trackedObj;
+    private float delay = 0.25f;
+
+    private float time;
+
+    private bool canInteract = true;
 
     // broadcast an event every time a ball is grabbed
     public delegate void BallGrabbed();
@@ -27,6 +30,9 @@ public class AlternateControllerHandler : MonoBehaviour {
 
     public static BallReleased OnBallRelease;
 
+    // the controller
+    private SteamVR_TrackedObject trackedObj;
+
     private SteamVR_Controller.Device Controller
     {
         get { return SteamVR_Controller.Input((int)trackedObj.index); }
@@ -36,6 +42,8 @@ public class AlternateControllerHandler : MonoBehaviour {
     {
         trackedObj = GetComponent<SteamVR_TrackedObject>();
         caughtSound = GetComponent<AudioSource>();
+
+        time = delay;
     }
 
     private void SetCollidingObject(Collider col)
@@ -50,12 +58,16 @@ public class AlternateControllerHandler : MonoBehaviour {
 
     public void OnTriggerEnter(Collider other)
     {
-        SetCollidingObject(other);
+        if (canInteract) {
+            SetCollidingObject(other);
+        }
     }
 
     public void OnTriggerStay(Collider other)
     {
-        SetCollidingObject(other);
+        if (canInteract) {
+            SetCollidingObject(other);
+        }
     }
 
     public void OnTriggerExit(Collider other)
@@ -70,18 +82,21 @@ public class AlternateControllerHandler : MonoBehaviour {
 
     private void GrabObject()
     {
-        caughtSound.Play();
-
-        if (OnBallGrab != null)
+        if (canInteract)
         {
-            OnBallGrab();
+            caughtSound.Play();
+
+            if (OnBallGrab != null)
+            {
+                OnBallGrab();
+            }
+
+            objectInHand = collidingObject;
+            collidingObject = null;
+
+            var joint = AddFixedJoint();
+            joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
         }
-
-        objectInHand = collidingObject;
-        collidingObject = null;
-
-        var joint = AddFixedJoint();
-        joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
     }
 
     private FixedJoint AddFixedJoint()
@@ -94,41 +109,59 @@ public class AlternateControllerHandler : MonoBehaviour {
 
     private void ReleaseObject()
     {
-        if (OnBallRelease != null)
-        {
-            OnBallRelease();
+        if (canInteract) {
+            if (OnBallRelease != null)
+            {
+                OnBallRelease();
+            }
+
+            if (GetComponent<FixedJoint>())
+            {
+                GetComponent<FixedJoint>().connectedBody = null;
+                Destroy(GetComponent<FixedJoint>());
+
+                objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
+                objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
+            }
+
+
+            Debug.Log("Released");
+            objectInHand = null;
         }
-
-        if (GetComponent<FixedJoint>())
-        {
-            GetComponent<FixedJoint>().connectedBody = null;
-            Destroy(GetComponent<FixedJoint>());
-
-            objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
-            objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
-        }
-
-        objectInHand = null;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(Controller.velocity.magnitude);
-        
-        // if colliding object
-        if (collidingObject)
-        {
-            GrabObject();
-        }
-
-        // if velocity > certain amount release
-        if (Controller.velocity.magnitude >= threshold)
-        {
-            Debug.Log("Above velocity threshold");
-            if (objectInHand)
+        if (canInteract) {
+            // if colliding object
+            if (collidingObject)
             {
+                // Debug.Log("Caught");
+                GrabObject();
+            }
+
+            // if velocity > certain amount release
+            else if (Controller.velocity.magnitude >= threshold && objectInHand)
+            {
+                // Debug.Log("Above velocity threshold");
                 ReleaseObject();
+                canInteract = false;
+            }
+        }
+        else
+        {
+            Debug.Log("Uncatchable");
+            if (time <= 0)
+            {
+                Debug.Log("time passed");
+                time = delay;
+
+                canInteract = true;
+            }
+            else
+            {
+                time -= Time.deltaTime;
             }
         }
     }

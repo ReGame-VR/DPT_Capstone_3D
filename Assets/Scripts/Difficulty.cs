@@ -8,6 +8,6 @@ public static class Difficulty {
     public static readonly float[] delay = new float[4] { 3f, 1.5f, 0.5f, 0.25f };
     
     // NEED TO TRANSLATE VELOCITY UNITS TO UNITY 3D
-    // public static readonly float[] velocityMin = new float[4] { };
+    public static readonly float[] velocityScale = new float[4] { 1, 2, 3, 4 };
     // public static readonly float[] velocityDev = new float[4] { };
 }

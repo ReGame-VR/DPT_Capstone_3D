@@ -33,6 +33,8 @@ public class UIController : MonoBehaviour {
 
     public float timer = 10f;
 
+    public float spawnDistance = 7f;
+
     // - - - - - DELEGATES AND EVENTS - - - - -
 
     public delegate void TrialsComplete();
@@ -70,17 +72,20 @@ public class UIController : MonoBehaviour {
 
     private int scoreDecay; // subtract from score every scoreDecay frames
 
-    private int numFrames = 0;
+    private int numFrames = 0; // this will measure the number of frames that have passed
+                               // since ball entered reachable area
 
     private AudioSource onTimeUp; // played when time is up
 
-    private float fieldWidth = 10;
+    private float fieldWidth = 12;
 
-    private float fieldDepth = 10;
+    private float fieldDepth = 9;
 
-    private float fieldHeight = 7;
+    private float fieldHeight = 9;
 
     private float offsetSize;
+
+    private bool decay = false;
 
     // for data recording 
     private bool caught = false;
@@ -98,9 +103,11 @@ public class UIController : MonoBehaviour {
     /// </summary>
 	void Start () {
         TargetCollision.OnTargetHit += this.TargetHit;
-        AlternateControllerHandler.OnBallGrab += this.BallCaught;
-        AlternateControllerHandler.OnBallRelease += this.BallReleased;
+        ControllerHandler.OnBallGrab += this.BallCaught;
+        ControllerHandler.OnBallRelease += this.BallReleased;
         OutOfBounds.OnOutOfBounds += this.OnOutOfBounds;
+        ReachCollider.IsInReach += this.IsReachable;
+        ReachCollider.IsOutOfReach += this.IsNotReachable;
 
         onTimeUp = GetComponent<AudioSource>();
         obj = new GameObject();
@@ -110,15 +117,22 @@ public class UIController : MonoBehaviour {
         difficulty = GameControl.Instance.difficulty;
         restPeriod = Difficulty.delay[difficulty];
         scoreDecay = Difficulty.scoreDecay[difficulty];
+        speed = speed * Difficulty.velocityScale[difficulty];
 
         // scale targets according to difficulty:
-        frontCanvas.transform.localScale = frontCanvas.transform.localScale * Difficulty.sunScale[difficulty];
-        leftCanvas.transform.localScale = leftCanvas.transform.localScale * Difficulty.sunScale[difficulty];
-        rightCanvas.transform.localScale = rightCanvas.transform.localScale * Difficulty.sunScale[difficulty];
-        ceilingCanvas.transform.localScale = ceilingCanvas.transform.localScale * Difficulty.sunScale[difficulty];
-        floorCanvas.transform.localScale = floorCanvas.transform.localScale * Difficulty.sunScale[difficulty];
+        frontCanvas.transform.localScale = frontCanvas.transform.localScale 
+            * Difficulty.sunScale[difficulty];
+        leftCanvas.transform.localScale = leftCanvas.transform.localScale 
+            * Difficulty.sunScale[difficulty];
+        rightCanvas.transform.localScale = rightCanvas.transform.localScale 
+            * Difficulty.sunScale[difficulty];
+        ceilingCanvas.transform.localScale = ceilingCanvas.transform.localScale 
+            * Difficulty.sunScale[difficulty];
+        floorCanvas.transform.localScale = floorCanvas.transform.localScale 
+            * Difficulty.sunScale[difficulty];
 
-        targetCollider.transform.localScale = targetCollider.transform.localScale * Difficulty.sunScale[difficulty];
+        targetCollider.transform.localScale = targetCollider.transform.localScale 
+            * Difficulty.sunScale[difficulty];
 
         offsetSize = targetWidth * Difficulty.sunScale[difficulty] / 2;
         
@@ -142,9 +156,11 @@ public class UIController : MonoBehaviour {
     void OnDisable()
     {
         TargetCollision.OnTargetHit -= this.TargetHit;
-        AlternateControllerHandler.OnBallGrab -= this.BallCaught;
-        AlternateControllerHandler.OnBallRelease -= this.BallReleased;
+        ControllerHandler.OnBallGrab -= this.BallCaught;
+        ControllerHandler.OnBallRelease -= this.BallReleased;
         OutOfBounds.OnOutOfBounds -= this.OnOutOfBounds;
+        ReachCollider.IsInReach += this.IsReachable;
+        ReachCollider.IsOutOfReach += this.IsNotReachable;
     }
 
     /// <summary>
@@ -153,15 +169,22 @@ public class UIController : MonoBehaviour {
     /// </summary>
     void Update()
     {
+
         if (!isGameOver) {
-            /*if (newBall)
-            {
-                Debug.Log(newBall.GetComponent<Rigidbody>().velocity.magnitude);
-            }*/
-            
+            // numFrames++;
             timeLeft -= Time.deltaTime;
             text.text = /*"Trial " + currTrial + " of " + numTrials +
                 "\nTime Left: " + Mathf.Round(timeLeft) +*/ "Score: " + score;
+
+            if (scoreDecay != 0 && decay)
+            {
+                numFrames++;
+
+                if (numFrames % scoreDecay == 0)
+                {
+                    score--;
+                }
+            }
 
             if (timeLeft <= restPeriod)
             {
@@ -171,7 +194,6 @@ public class UIController : MonoBehaviour {
                     onTimeUp.Play();
                     DestroyBall();
                     MoveTarget();
-                    //disableTarget();
                 }
                 if (timeLeft <= 0)
                 {
@@ -181,13 +203,28 @@ public class UIController : MonoBehaviour {
         }
     }
 
+    private void IsReachable()
+    {
+        decay = true;
+    }
+
+    private void IsNotReachable()
+    {
+        if (caught && thrown)
+        {
+            decay = true;
+        }
+        else
+        {
+            decay = false;
+        }
+    }
 
     private void OnOutOfBounds()
     {
         timeLeft = restPeriod;
         DestroyBall();
         MoveTarget();
-        // disableTarget();
     }
 
 
@@ -228,7 +265,6 @@ public class UIController : MonoBehaviour {
 
         if (currTrial < numTrials)
         {
-            // MoveTarget();
             CreateBall();
             timeLeft = timer;
             currTrial++;
@@ -251,7 +287,6 @@ public class UIController : MonoBehaviour {
 
             DestroyBall();
             MoveTarget();
-            // disableTarget();
 
             timeLeft = restPeriod;
         }
@@ -314,7 +349,7 @@ public class UIController : MonoBehaviour {
             float x, y, z;
 
             x = Random.Range(cameraRig.transform.position.x - fieldWidth / 2f, cameraRig.transform.position.x + fieldWidth / 2f);
-            z = cameraRig.transform.position.z + fieldDepth;
+            z = cameraRig.transform.position.z + spawnDistance;
             y = Random.Range(cameraRig.transform.position.y, fieldHeight);
 
             /*
@@ -351,6 +386,8 @@ public class UIController : MonoBehaviour {
     /// </summary>
     private void MoveTarget()
     {
+        decay = false;
+
         int direction = Random.Range(1, 6);
 
         BoxCollider col = targetCollider.GetComponent<BoxCollider>();
