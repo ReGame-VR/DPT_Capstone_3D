@@ -101,7 +101,7 @@ public class UIController : MonoBehaviour {
 	/// <summary>
     /// Subscribe to events and initialize values.
     /// </summary>
-	void Start () {
+	void Awake () {
         TargetCollision.OnTargetHit += this.TargetHit;
         ControllerHandler.OnBallGrab += this.BallCaught;
         ControllerHandler.OnBallRelease += this.BallReleased;
@@ -443,6 +443,8 @@ public class UIController : MonoBehaviour {
 
     private void DestroyBall()
     {
-        Destroy(newBall.gameObject);
+        if (newBall) {
+            Destroy(newBall.gameObject);
+        }
     }
 }
