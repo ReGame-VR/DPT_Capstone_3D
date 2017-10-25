@@ -21,19 +21,29 @@ public class MenuController : MonoBehaviour {
 
     public void SetSessionType(int type)
     {
+        //GameControl.Instance.difficulty = type;
+
         switch (type)
         {
             case 0:
-                GameControl.Instance.label = SessionLabels.ACQUISITION;
+                GameControl.Instance.label = SessionLabels.BASELINE;
+                GameControl.Instance.difficulty = 0;
                 break;
             case 1:
-                GameControl.Instance.label = SessionLabels.RETENTION;
+                GameControl.Instance.label = SessionLabels.ACQUISITION;
+                GameControl.Instance.difficulty = 1;
                 break;
             case 2:
-                GameControl.Instance.label = SessionLabels.RETENTION_DISTRACTION;
+                GameControl.Instance.label = SessionLabels.RETENTION;
+                GameControl.Instance.difficulty = 1;
                 break;
             case 3:
+                GameControl.Instance.label = SessionLabels.RETENTION_DISTRACTION;
+                GameControl.Instance.difficulty = 1;
+                break;
+            case 4:
                 GameControl.Instance.label = SessionLabels.TRANSFER;
+                GameControl.Instance.difficulty = 2;
                 break;
         }
     }
@@ -60,6 +70,6 @@ public class MenuController : MonoBehaviour {
 
     public enum SessionLabels
     {
-        ACQUISITION, RETENTION, RETENTION_DISTRACTION, TRANSFER
+        BASELINE, ACQUISITION, RETENTION, RETENTION_DISTRACTION, TRANSFER
     };
 }

@@ -18,6 +18,9 @@ public class DataHandler : MonoBehaviour {
 
         switch (GameControl.Instance.label)
         {
+            case MenuController.SessionLabels.BASELINE:
+                identifier = "_baseline";
+                break;
             case MenuController.SessionLabels.ACQUISITION:
                 identifier = "_aquisition";
                 break;
