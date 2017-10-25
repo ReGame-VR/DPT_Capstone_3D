@@ -85,7 +85,7 @@ public class UIController : MonoBehaviour {
 
     private float offsetSize;
 
-    private bool decay = false;
+    // private bool decay = false;
 
     // for data recording 
     private bool caught = false;
@@ -106,8 +106,8 @@ public class UIController : MonoBehaviour {
         ControllerHandler.OnBallGrab += this.BallCaught;
         ControllerHandler.OnBallRelease += this.BallReleased;
         OutOfBounds.OnOutOfBounds += this.OnOutOfBounds;
-        ReachCollider.IsInReach += this.IsReachable;
-        ReachCollider.IsOutOfReach += this.IsNotReachable;
+        // ReachCollider.IsInReach += this.IsReachable;
+        // ReachCollider.IsOutOfReach += this.IsNotReachable;
 
         onTimeUp = GetComponent<AudioSource>();
         obj = new GameObject();
@@ -159,8 +159,8 @@ public class UIController : MonoBehaviour {
         ControllerHandler.OnBallGrab -= this.BallCaught;
         ControllerHandler.OnBallRelease -= this.BallReleased;
         OutOfBounds.OnOutOfBounds -= this.OnOutOfBounds;
-        ReachCollider.IsInReach += this.IsReachable;
-        ReachCollider.IsOutOfReach += this.IsNotReachable;
+        // ReachCollider.IsInReach += this.IsReachable;
+        // ReachCollider.IsOutOfReach += this.IsNotReachable;
     }
 
     /// <summary>
@@ -176,18 +176,21 @@ public class UIController : MonoBehaviour {
             text.text = /*"Trial " + currTrial + " of " + numTrials +
                 "\nTime Left: " + Mathf.Round(timeLeft) +*/ "Score: " + score;
 
-            if (scoreDecay != 0 && decay)
+            if (timeLeft > restPeriod)
             {
-                numFrames++;
-
-                if (numFrames % scoreDecay == 0)
+                if (scoreDecay != 0)
                 {
-                    score--;
+                    numFrames++;
+
+                    if (numFrames % scoreDecay == 0)
+                    {
+                        score--;
+                    }
                 }
             }
 
-            if (timeLeft <= restPeriod)
-            {
+            else
+            { 
                 // delete ball and play sound, but only if ball has not been destroyed by other functions
                 if (newBall)
                 {
@@ -200,23 +203,6 @@ public class UIController : MonoBehaviour {
                     Reset();
                 }
             }
-        }
-    }
-
-    private void IsReachable()
-    {
-        decay = true;
-    }
-
-    private void IsNotReachable()
-    {
-        if (caught && thrown)
-        {
-            decay = true;
-        }
-        else
-        {
-            decay = false;
         }
     }
 
@@ -348,9 +334,10 @@ public class UIController : MonoBehaviour {
 
             float x, y, z;
 
-            x = Random.Range(cameraRig.transform.position.x - fieldWidth / 2f, cameraRig.transform.position.x + fieldWidth / 2f);
+            x = Random.Range(cameraRig.transform.position.x - spawnDistance, 
+                cameraRig.transform.position.x + spawnDistance);
             z = cameraRig.transform.position.z + spawnDistance;
-            y = Random.Range(cameraRig.transform.position.y, fieldHeight);
+            y = Random.Range(cameraRig.transform.position.y, spawnDistance);
 
             /*
             switch (direction)
@@ -386,8 +373,6 @@ public class UIController : MonoBehaviour {
     /// </summary>
     private void MoveTarget()
     {
-        decay = false;
-
         int direction = Random.Range(1, 6);
 
         BoxCollider col = targetCollider.GetComponent<BoxCollider>();
