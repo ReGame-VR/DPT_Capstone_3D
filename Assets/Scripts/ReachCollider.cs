@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/// <summary>
+/// Creates the trigger collider that changes the color of the ball when in reach.
+/// </summary>
 public class ReachCollider : MonoBehaviour {
 
     public Material outOfBounds;
@@ -12,8 +16,20 @@ public class ReachCollider : MonoBehaviour {
 
     private BoxCollider bc;
 
+    private bool caught; // once ball is caught, stay green
+
+    public delegate void InReach();
+
+    public static InReach IsInReach;
+
+    public delegate void OutOfReach();
+
+    public static OutOfReach IsOutOfReach;
+
 	// Use this for initialization
-	void Start () {
+	void Awake () {
+        ControllerHandler.OnBallGrab += wasCaught;
+
         bc = gameObject.GetComponent<BoxCollider>();
 
         bc.center = new Vector3(cameraRig.transform.position.x, 
@@ -21,9 +37,14 @@ public class ReachCollider : MonoBehaviour {
             cameraRig.transform.position.z);
         bc.size = new Vector3(System.Math.Abs(GameControl.Instance.leftMax) 
             + GameControl.Instance.rightMax, GameControl.Instance.heightMax,
-            System.Math.Abs(GameControl.Instance.leftMax) + GameControl.Instance.rightMax);
+            GameControl.Instance.reachMax * 2);
 
 	}
+
+    void OnDisable()
+    {
+        ControllerHandler.OnBallGrab -= wasCaught;
+    }
 
     public void OnTriggerEnter(Collider other)
     {
@@ -52,10 +73,26 @@ public class ReachCollider : MonoBehaviour {
     private void ToInBounds(GameObject ball)
     {
         ball.GetComponent<Renderer>().material = inBounds;
+        if (IsInReach != null)
+        {
+            IsInReach();
+        }
     }
 
     private void ToOutofBounds(GameObject ball)
     {
-        ball.GetComponent<Renderer>().material = outOfBounds;
+        if (!caught)
+        {
+            ball.GetComponent<Renderer>().material = outOfBounds;
+        }
+        if (IsOutOfReach != null)
+        {
+            IsOutOfReach();
+        }
+    }
+
+    private void wasCaught()
+    {
+        caught = true;
     }
 }

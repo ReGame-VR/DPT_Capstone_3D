@@ -607,11 +607,12 @@ PlayerSettings:
     daydream:
       daydreamIconForeground: {fileID: 0}
       daydreamIconBackground: {fileID: 0}
-  cloudServicesEnabled: {}
+  cloudServicesEnabled:
+    UNet: 1
   facebookSdkVersion: 7.9.1
   apiCompatibilityLevel: 2
-  cloudProjectId: 
-  projectName: 
-  organizationId: 
+  cloudProjectId: c35c6997-f553-4be1-9dc2-9479daf80211
+  projectName: BowAndArrow
+  organizationId: regamevrlab
   cloudEnabled: 0
   enableNewInputSystem: 0

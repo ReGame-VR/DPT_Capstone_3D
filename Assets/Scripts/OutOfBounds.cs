@@ -2,6 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/// <summary>
+/// Destroys balls when they go out of bounds, and sends an event to begin a new trial.
+/// </summary>
 public class OutOfBounds : MonoBehaviour {
 
     private AudioSource miss;
@@ -15,7 +19,7 @@ public class OutOfBounds : MonoBehaviour {
         miss = GetComponent<AudioSource>();
     }
 	
-    public void OnTriggerEnter(Collider other)
+    public void OnTriggerExit(Collider other)
     {
         miss.Play();
 
