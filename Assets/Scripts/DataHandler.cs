@@ -21,8 +21,11 @@ public class DataHandler : MonoBehaviour {
             case MenuController.SessionLabels.BASELINE:
                 identifier = "_baseline";
                 break;
-            case MenuController.SessionLabels.ACQUISITION:
-                identifier = "_aquisition";
+            case MenuController.SessionLabels.ACQUISITION1:
+                identifier = "_aquisition1";
+                break;
+            case MenuController.SessionLabels.ACQUISITION2:
+                identifier = "_aquisition2";
                 break;
             case MenuController.SessionLabels.RETENTION:
                 identifier = "_retention";

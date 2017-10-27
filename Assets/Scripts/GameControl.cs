@@ -13,7 +13,7 @@ public class GameControl : MonoBehaviour {
     public int difficulty = 0;
     public int numTrials = 10;
     public string participantID = "default";
-    public MenuController.SessionLabels label = MenuController.SessionLabels.ACQUISITION;
+    public MenuController.SessionLabels label = MenuController.SessionLabels.BASELINE;
 
 	void Awake () {
         if (Instance == null)
