@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ControllerHandler : MonoBehaviour {
     // the velocity threshold for throwing
-    private float threshold = 5f;
+    private float threshold = 3.5f;
 
     // play a sound when caught
     private AudioSource caughtSound;
@@ -49,7 +49,7 @@ public class ControllerHandler : MonoBehaviour {
     }
 
     private void newBall(int trialNum, float catchTime,
-        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget)
+        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget, int score)
     {
         catchable = true;
     }

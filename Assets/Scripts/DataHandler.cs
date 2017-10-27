@@ -54,6 +54,7 @@ public class DataHandler : MonoBehaviour {
             header.Add("Caught");
             header.Add("Thrown");
             header.Add("Hit Target");
+            header.Add("Score");
 
             writer.WriteRow(header);
 
@@ -67,28 +68,32 @@ public class DataHandler : MonoBehaviour {
                 row.Add(d.wasCaught.ToString());
                 row.Add(d.wasThrown.ToString());
                 row.Add(d.hitTarget.ToString());
+                row.Add(d.score.ToString());
 
                 writer.WriteRow(row);
             }
+
+            writer.WriteRow(new CsvRow());
+            CsvRow 
         }
 
         UIController.RecordData -= AddLine;
     }
 
     private void AddLine(int trialNum, float catchTime,
-        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget)
+        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget, int score)
     {
-        data.Add(new Data(trialNum, catchTime, throwTime, wasCaught, wasThrown, hitTarget));
+        data.Add(new Data(trialNum, catchTime, throwTime, wasCaught, wasThrown, hitTarget, score));
     }
 
     class Data
     {
-        public readonly int trialNum;
+        public readonly int trialNum, score;
         public readonly float catchTime, throwTime;
         public readonly bool wasCaught, wasThrown, hitTarget;
 
         public Data(int trialNum, float catchTime, float throwTime, 
-            bool wasCaught, bool wasThrown, bool hitTarget)
+            bool wasCaught, bool wasThrown, bool hitTarget, int score)
         {
             this.trialNum = trialNum;
             this.catchTime = catchTime;
@@ -96,6 +101,7 @@ public class DataHandler : MonoBehaviour {
             this.wasCaught = wasCaught;
             this.wasThrown = wasThrown;
             this.hitTarget = hitTarget;
+            this.score = score;
         }
     }
 }

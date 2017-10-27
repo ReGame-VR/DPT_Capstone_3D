@@ -42,7 +42,7 @@ public class UIController : MonoBehaviour {
     public static TrialsComplete OnTrialsComplete;
 
     public delegate void TrialComplete(int trialNum, float catchTime,
-        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget);
+        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget, int score);
 
     public static TrialComplete RecordData;
 
@@ -85,6 +85,8 @@ public class UIController : MonoBehaviour {
 
     private float offsetSize;
 
+    private int numCaught, numThrown, numHit;
+
     // private bool decay = false;
 
     // for data recording 
@@ -108,6 +110,10 @@ public class UIController : MonoBehaviour {
         OutOfBounds.OnOutOfBounds += this.OnOutOfBounds;
         // ReachCollider.IsInReach += this.IsReachable;
         // ReachCollider.IsOutOfReach += this.IsNotReachable;
+
+        numCaught = 0;
+        numThrown = 0;
+        numHit = 0;
 
         onTimeUp = GetComponent<AudioSource>();
         obj = new GameObject();
@@ -240,7 +246,7 @@ public class UIController : MonoBehaviour {
     {
         if (RecordData != null)
         {
-            RecordData(currTrial, catchTime, throwTime, caught, thrown, targetHit);
+            RecordData(currTrial, catchTime, throwTime, caught, thrown, targetHit, score);
         }
 
         caught = false;
@@ -363,6 +369,7 @@ public class UIController : MonoBehaviour {
 
             caught = false;
             newBall = Instantiate(Ball, new Vector3(x, y, z), Ball.transform.rotation);
+            newBall.transform.localScale = newBall.transform.localScale * Difficulty.ballScale[difficulty];
             newBall.transform.LookAt(obj.transform);
             newBall.AddRelativeForce(Vector3.forward * speed, ForceMode.Acceleration);
         }
