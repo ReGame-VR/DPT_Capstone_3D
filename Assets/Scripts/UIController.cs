@@ -37,12 +37,12 @@ public class UIController : MonoBehaviour {
 
     // - - - - - DELEGATES AND EVENTS - - - - -
 
-    public delegate void TrialsComplete();
+    public delegate void TrialsComplete(int score);
 
     public static TrialsComplete OnTrialsComplete;
 
     public delegate void TrialComplete(int trialNum, float catchTime,
-        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget);
+        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget, int score);
 
     public static TrialComplete RecordData;
 
@@ -85,6 +85,10 @@ public class UIController : MonoBehaviour {
 
     private float offsetSize;
 
+    private int numCaught, numThrown, numHit;
+
+    private float minBallHeight = 0.8f;
+
     // private bool decay = false;
 
     // for data recording 
@@ -101,13 +105,17 @@ public class UIController : MonoBehaviour {
 	/// <summary>
     /// Subscribe to events and initialize values.
     /// </summary>
-	void Start () {
+	void Awake () {
         TargetCollision.OnTargetHit += this.TargetHit;
         ControllerHandler.OnBallGrab += this.BallCaught;
         ControllerHandler.OnBallRelease += this.BallReleased;
         OutOfBounds.OnOutOfBounds += this.OnOutOfBounds;
         // ReachCollider.IsInReach += this.IsReachable;
         // ReachCollider.IsOutOfReach += this.IsNotReachable;
+
+        numCaught = 0;
+        numThrown = 0;
+        numHit = 0;
 
         onTimeUp = GetComponent<AudioSource>();
         obj = new GameObject();
@@ -240,7 +248,7 @@ public class UIController : MonoBehaviour {
     {
         if (RecordData != null)
         {
-            RecordData(currTrial, catchTime, throwTime, caught, thrown, targetHit);
+            RecordData(currTrial, catchTime, throwTime, caught, thrown, targetHit, score);
         }
 
         caught = false;
@@ -314,7 +322,7 @@ public class UIController : MonoBehaviour {
 
         if (OnTrialsComplete != null)
         {
-            OnTrialsComplete();
+            OnTrialsComplete(score);
         }
     }
 
@@ -328,8 +336,8 @@ public class UIController : MonoBehaviour {
             // int direction = Random.Range(1, 4);
 
             // set the gameobject that the ball will move towards
-            Vector3 posn = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.3f, GameControl.Instance.rightMax - 0.3f),
-                Random.Range(0, GameControl.Instance.heightMax), cameraRig.transform.position.z);
+            Vector3 posn = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.1f, GameControl.Instance.rightMax - 0.1f),
+                Random.Range(minBallHeight, GameControl.Instance.heightMax), cameraRig.transform.position.z);
             obj.transform.position = posn;
 
             float x, y, z;
@@ -363,6 +371,7 @@ public class UIController : MonoBehaviour {
 
             caught = false;
             newBall = Instantiate(Ball, new Vector3(x, y, z), Ball.transform.rotation);
+            newBall.transform.localScale = newBall.transform.localScale * Difficulty.ballScale[difficulty];
             newBall.transform.LookAt(obj.transform);
             newBall.AddRelativeForce(Vector3.forward * speed, ForceMode.Acceleration);
         }
@@ -443,6 +452,8 @@ public class UIController : MonoBehaviour {
 
     private void DestroyBall()
     {
-        Destroy(newBall.gameObject);
+        if (newBall) {
+            Destroy(newBall.gameObject);
+        }
     }
 }

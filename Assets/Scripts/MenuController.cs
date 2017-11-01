@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.VR;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
@@ -8,6 +9,14 @@ using UnityEngine.SceneManagement;
 /// the next scene.
 /// </summary>
 public class MenuController : MonoBehaviour {
+
+    public GameObject acqu2Slider;
+    public Text sliderText;
+
+    void Awake()
+    {
+        acqu2Slider.SetActive(false);
+    }
 
     public void SetParticipantID(string id)
     {
@@ -28,34 +37,47 @@ public class MenuController : MonoBehaviour {
             case 0:
                 GameControl.Instance.label = SessionLabels.BASELINE;
                 GameControl.Instance.difficulty = 0;
+                GameControl.Instance.numTrials = 10;
                 break;
             case 1:
-                GameControl.Instance.label = SessionLabels.ACQUISITION;
+                GameControl.Instance.label = SessionLabels.ACQUISITION1;
                 GameControl.Instance.difficulty = 1;
+                GameControl.Instance.numTrials = 200;
                 break;
             case 2:
-                GameControl.Instance.label = SessionLabels.RETENTION;
+                GameControl.Instance.label = SessionLabels.ACQUISITION2;
+                acqu2Slider.SetActive(true);
                 GameControl.Instance.difficulty = 1;
                 break;
             case 3:
-                GameControl.Instance.label = SessionLabels.RETENTION_DISTRACTION;
+                GameControl.Instance.label = SessionLabels.RETENTION;
                 GameControl.Instance.difficulty = 1;
+                GameControl.Instance.numTrials = 20;
                 break;
             case 4:
+                GameControl.Instance.label = SessionLabels.RETENTION_DISTRACTION;
+                GameControl.Instance.difficulty = 1;
+                GameControl.Instance.numTrials = 20;
+                break;
+            case 5:
                 GameControl.Instance.label = SessionLabels.TRANSFER;
                 GameControl.Instance.difficulty = 2;
+                GameControl.Instance.numTrials = 20;
                 break;
         }
     }
 
-    public void StartTrials()
+    public void SetNumTrials(float i)
     {
-        SceneManager.LoadScene("Calibrate");
+        GameControl.Instance.numTrials = (int)i;
+        sliderText.text = i.ToString();
     }
 
-    public void SetNumTrials(string num)
+    public void StartTrials()
     {
-        GameControl.Instance.numTrials = int.Parse(num);
+
+        // Debug.Log(GameControl.Instance.numTrials);
+        SceneManager.LoadScene("Calibrate");
     }
 
 	// Use this for initialization
@@ -70,6 +92,6 @@ public class MenuController : MonoBehaviour {
 
     public enum SessionLabels
     {
-        BASELINE, ACQUISITION, RETENTION, RETENTION_DISTRACTION, TRANSFER
+        BASELINE, ACQUISITION1, ACQUISITION2, RETENTION, RETENTION_DISTRACTION, TRANSFER
     };
 }

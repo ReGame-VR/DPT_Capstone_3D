@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ControllerHandler : MonoBehaviour {
+    // the velocity threshold for throwing
+    private float threshold = 3.5f;
+
     // play a sound when caught
     private AudioSource caughtSound;
     
     // the ball that the user can grab
     private GameObject collidingObject;
 
-    // the ball that the user is holding
-    private GameObject objectInHand;
-
-    // the controller
-    private SteamVR_TrackedObject trackedObj;
+    // can you catch the ball?
+    private bool catchable;
 
     // broadcast an event every time a ball is grabbed
     public delegate void BallGrabbed();
@@ -25,6 +25,9 @@ public class ControllerHandler : MonoBehaviour {
 
     public static BallReleased OnBallRelease;
 
+    // the controller
+    private SteamVR_TrackedObject trackedObj;
+
     private SteamVR_Controller.Device Controller
     {
         get { return SteamVR_Controller.Input((int)trackedObj.index); }
@@ -32,28 +35,46 @@ public class ControllerHandler : MonoBehaviour {
 
     void Awake()
     {
+        UIController.RecordData += newBall;
+
         trackedObj = GetComponent<SteamVR_TrackedObject>();
         caughtSound = GetComponent<AudioSource>();
+
+        catchable = true;
     }
 
-    private void SetCollidingObject(Collider col)
+    void OnDisable()
     {
-        if (collidingObject || !col.GetComponent<Rigidbody>())
+        UIController.RecordData -= newBall;
+    }
+
+    private void newBall(int trialNum, float catchTime,
+        float throwTime, bool wasCaught, bool wasThrown, bool hitTarget, int score)
+    {
+        catchable = true;
+    }
+
+
+    public void OnTriggerEnter(Collider other)
+    {
+        if (collidingObject || !other.GetComponent<Rigidbody>())
         {
             return;
         }
 
-        collidingObject = col.gameObject;
-    }
-
-    public void OnTriggerEnter(Collider other)
-    {
-        SetCollidingObject(other);
+        collidingObject = other.gameObject;
+        GrabObject();
     }
 
     public void OnTriggerStay(Collider other)
     {
-        SetCollidingObject(other);
+        if (collidingObject || !other.GetComponent<Rigidbody>())
+        {
+            return;
+        }
+
+        collidingObject = other.gameObject;
+        GrabObject();
     }
 
     public void OnTriggerExit(Collider other)
@@ -63,23 +84,27 @@ public class ControllerHandler : MonoBehaviour {
             return;
         }
 
-        collidingObject = null;
+        // collidingObject = null;
+        catchable = true;
     }
 
     private void GrabObject()
     {
-        caughtSound.Play();
+        if (catchable) {
+            caughtSound.Play();
 
-        if (OnBallGrab != null)
-        {
-            OnBallGrab();
+            if (OnBallGrab != null)
+            {
+                OnBallGrab();
+            }
+
+            // objectInHand = collidingObject;
+            // collidingObject = null;
+
+            var joint = AddFixedJoint();
+            joint.connectedBody = collidingObject.GetComponent<Rigidbody>();
+            catchable = false;
         }
-
-        objectInHand = collidingObject;
-        collidingObject = null;
- 
-        var joint = AddFixedJoint();
-        joint.connectedBody = objectInHand.GetComponent<Rigidbody>();
     }
 
     private FixedJoint AddFixedJoint()
@@ -102,26 +127,19 @@ public class ControllerHandler : MonoBehaviour {
             GetComponent<FixedJoint>().connectedBody = null;
             Destroy(GetComponent<FixedJoint>());
 
-            objectInHand.GetComponent<Rigidbody>().velocity = Controller.velocity;
-            objectInHand.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
+            collidingObject.GetComponent<Rigidbody>().velocity = Controller.velocity;
+            collidingObject.GetComponent<Rigidbody>().angularVelocity = Controller.angularVelocity;
         }
 
-        objectInHand = null;
+        collidingObject = null;
     }
 
     // Update is called once per frame
     void Update () {
-        if (Controller.GetHairTriggerDown())
+
+        if (Controller.velocity.magnitude >= threshold)
         {
             if (collidingObject)
-            {
-                GrabObject();
-            }
-        }
-
-        if (Controller.GetHairTriggerUp())
-        {
-            if (objectInHand)
             {
                 ReleaseObject();
             }
