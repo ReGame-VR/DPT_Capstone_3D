@@ -37,7 +37,7 @@ public class UIController : MonoBehaviour {
 
     // - - - - - DELEGATES AND EVENTS - - - - -
 
-    public delegate void TrialsComplete();
+    public delegate void TrialsComplete(int score);
 
     public static TrialsComplete OnTrialsComplete;
 
@@ -86,6 +86,8 @@ public class UIController : MonoBehaviour {
     private float offsetSize;
 
     private int numCaught, numThrown, numHit;
+
+    private float minBallHeight = 0.8f;
 
     // private bool decay = false;
 
@@ -320,7 +322,7 @@ public class UIController : MonoBehaviour {
 
         if (OnTrialsComplete != null)
         {
-            OnTrialsComplete();
+            OnTrialsComplete(score);
         }
     }
 
@@ -334,8 +336,8 @@ public class UIController : MonoBehaviour {
             // int direction = Random.Range(1, 4);
 
             // set the gameobject that the ball will move towards
-            Vector3 posn = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.3f, GameControl.Instance.rightMax - 0.3f),
-                Random.Range(0, GameControl.Instance.heightMax), cameraRig.transform.position.z);
+            Vector3 posn = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.1f, GameControl.Instance.rightMax - 0.1f),
+                Random.Range(minBallHeight, GameControl.Instance.heightMax), cameraRig.transform.position.z);
             obj.transform.position = posn;
 
             float x, y, z;

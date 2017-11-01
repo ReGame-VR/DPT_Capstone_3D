@@ -10,7 +10,7 @@ public class DataHandler : MonoBehaviour {
 
     private List<Data> data = new List<Data>();
     private string fileName;
-    private int finalScore;
+    private int finalScore = 0;
 
 	// Use this for initialization
 	void Awake()
@@ -40,6 +40,7 @@ public class DataHandler : MonoBehaviour {
         }
 
         UIController.RecordData += AddLine;
+        UIController.OnTrialsComplete += GetScore;
         System.DateTime today = System.DateTime.Today;
         fileName = GameControl.Instance.participantID + "_" + today.ToString("d").Replace('/','_') + identifier;
 	}
@@ -78,6 +79,8 @@ public class DataHandler : MonoBehaviour {
             CsvRow score = new CsvRow();
             score.Add("Score total: ");
             score.Add(finalScore.ToString());
+
+            writer.WriteRow(score);
         }
 
         UIController.RecordData -= AddLine;
@@ -87,6 +90,11 @@ public class DataHandler : MonoBehaviour {
         float throwTime, bool wasCaught, bool wasThrown, bool hitTarget, int score)
     {
         data.Add(new Data(trialNum, catchTime, throwTime, wasCaught, wasThrown, hitTarget, score));
+    }
+
+    private void GetScore(int score)
+    {
+        finalScore = score;
     }
 
     class Data
