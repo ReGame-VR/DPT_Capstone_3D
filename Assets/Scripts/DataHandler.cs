@@ -10,6 +10,7 @@ public class DataHandler : MonoBehaviour {
 
     private List<Data> data = new List<Data>();
     private string fileName;
+    private int finalScore;
 
 	// Use this for initialization
 	void Awake()
@@ -74,7 +75,9 @@ public class DataHandler : MonoBehaviour {
             }
 
             writer.WriteRow(new CsvRow());
-            CsvRow 
+            CsvRow score = new CsvRow();
+            score.Add("Score total: ");
+            score.Add(finalScore.ToString());
         }
 
         UIController.RecordData -= AddLine;
