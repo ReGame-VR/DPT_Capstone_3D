@@ -37,7 +37,7 @@ public class UIController : MonoBehaviour {
 
     // - - - - - DELEGATES AND EVENTS - - - - -
 
-    public delegate void TrialsComplete(int score);
+    public delegate void TrialsComplete(int score, int numSuccesses);
 
     public static TrialsComplete OnTrialsComplete;
 
@@ -88,6 +88,8 @@ public class UIController : MonoBehaviour {
     private int numCaught, numThrown, numHit;
 
     private float minBallHeight = 0.8f;
+
+    private int numSuccesses;
 
     // private bool decay = false;
 
@@ -322,7 +324,7 @@ public class UIController : MonoBehaviour {
 
         if (OnTrialsComplete != null)
         {
-            OnTrialsComplete(score);
+            OnTrialsComplete(score, numSuccesses);
         }
     }
 

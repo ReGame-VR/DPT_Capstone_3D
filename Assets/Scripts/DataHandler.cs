@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ReadWriteCSV;
+using System.IO;
 
 /// <summary>
 /// Saves trial data in a list, then writes to a file when the game is closed. 
@@ -11,6 +12,8 @@ public class DataHandler : MonoBehaviour {
     private List<Data> data = new List<Data>();
     private string fileName;
     private int finalScore = 0;
+    private int numSuccesses = 0;
+    StreamWriter summaryOutput;
 
 	// Use this for initialization
 	void Awake()
@@ -40,7 +43,7 @@ public class DataHandler : MonoBehaviour {
         }
 
         UIController.RecordData += AddLine;
-        UIController.OnTrialsComplete += GetScore;
+        UIController.OnTrialsComplete += WriteSummary;
         System.DateTime today = System.DateTime.Today;
         fileName = GameControl.Instance.participantID + "_" + today.ToString("d").Replace('/','_') + identifier;
 	}
@@ -67,23 +70,79 @@ public class DataHandler : MonoBehaviour {
                 row.Add(d.trialNum.ToString());
                 row.Add(d.catchTime.ToString());
                 row.Add(d.throwTime.ToString());
-                row.Add(d.wasCaught.ToString());
-                row.Add(d.wasThrown.ToString());
+                if (d.wasCaught) {
+                    row.Add("yes");
+                }
+                else
+                {
+                    row.Add("no");
+                }
+                if (d.wasThrown)
+                {
+                    row.Add("yes");
+                }
+                else
+                {
+                    row.Add("no");
+                }
                 row.Add(d.hitTarget.ToString());
                 row.Add(d.score.ToString());
 
                 writer.WriteRow(row);
             }
 
-            writer.WriteRow(new CsvRow());
+            /*writer.WriteRow(new CsvRow());
             CsvRow score = new CsvRow();
             score.Add("Score total: ");
             score.Add(finalScore.ToString());
 
             writer.WriteRow(score);
+            
+             CsvRow sumheader = new CsvRow();
+                    sumheader.Add("Level");
+                    sumheader.Add("Score");
+                    sumheader.Add("Successful Trials");
+                    sumheader.Add("Total Trials");
+                    sumheader.Add("Success Rate");*/
+
+            if (!File.Exists(@"Data/" + GameControl.Instance.participantID + "_summary.csv"))
+            {
+                summaryOutput = new StreamWriter(@"Data/" + GameControl.Instance.participantID + "_summary.csv");
+                summaryOutput.WriteLine("Level,Score,Successful Trials,Total Trials,Success Rate");
+            }
+
+            string diff;
+
+            switch (GameControl.Instance.label)
+            {
+                case MenuController.SessionLabels.BASELINE:
+                    diff = "baseline";
+                    break;
+                case MenuController.SessionLabels.ACQUISITION1:
+                    diff = "aquisition 1";
+                    break;
+                case MenuController.SessionLabels.ACQUISITION2:
+                    diff = "aquisition 2";
+                    break;
+                case MenuController.SessionLabels.RETENTION:
+                    diff = "retention";
+                    break;
+                case MenuController.SessionLabels.RETENTION_DISTRACTION:
+                    diff = "retention distraction";
+                    break;
+                default:
+                    diff = "transfer";
+                    break;
+
+            }
+            summaryOutput.WriteLine(diff + "," + finalScore + "," + numSuccesses + "," 
+                + GameControl.Instance.numTrials + "," + numSuccesses / GameControl.Instance.numTrials);
+
         }
 
+
         UIController.RecordData -= AddLine;
+        UIController.OnTrialsComplete -= WriteSummary;
     }
 
     private void AddLine(int trialNum, float catchTime,
@@ -92,9 +151,10 @@ public class DataHandler : MonoBehaviour {
         data.Add(new Data(trialNum, catchTime, throwTime, wasCaught, wasThrown, hitTarget, score));
     }
 
-    private void GetScore(int score)
+    private void WriteSummary(int score, int successes)
     {
         finalScore = score;
+        numSuccesses = successes;
     }
 
     class Data
