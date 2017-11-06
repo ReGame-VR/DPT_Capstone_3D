@@ -99,8 +99,6 @@ public class DataHandler : MonoBehaviour {
             }
 
             writer.WriteRow(new CsvRow());
-            //CsvRow score = new CsvRow();
-           
             
             CsvRow sumheader = new CsvRow();
             sumheader.Add("Level");

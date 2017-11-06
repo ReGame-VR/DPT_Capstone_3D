@@ -93,7 +93,9 @@ public class UIController : MonoBehaviour {
 
     private int prevScore = 0;
 
-    // private bool decay = false;
+    private float throwLim;
+
+    private float holdTime = 0;
 
     // for data recording 
     private bool caught = false;
@@ -130,6 +132,7 @@ public class UIController : MonoBehaviour {
         restPeriod = Difficulty.delay[difficulty];
         scoreDecay = Difficulty.scoreDecay[difficulty];
         speed = speed * Difficulty.velocityScale[difficulty];
+        throwLim = Difficulty.throwLim[difficulty];
 
         // scale targets according to difficulty:
         frontCanvas.transform.localScale = frontCanvas.transform.localScale 
@@ -197,6 +200,20 @@ public class UIController : MonoBehaviour {
                     if (numFrames % scoreDecay == 0)
                     {
                         score--;
+                    }
+                }
+
+                if (throwLim != 0 && caught && !thrown)
+                {
+                    holdTime += Time.deltaTime;
+
+                    if (holdTime >= throwLim)
+                    {
+                        holdTime = 0;
+                        timeLeft = restPeriod;
+                        onTimeUp.Play();
+                        DestroyBall();
+                        MoveTarget();
                     }
                 }
             }
