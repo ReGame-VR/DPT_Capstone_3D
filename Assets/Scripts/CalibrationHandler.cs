@@ -4,6 +4,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>
+/// A class for handling user reach calibration. It currently tracks left and right reach,
+/// height reach, and forward reach. It should be attached to the controller(s) in the
+/// SteamVR prefab in the CALIBRATION scene.
+/// </summary>
 public class CalibrationHandler : MonoBehaviour {
 
     // bounds that player can reach
@@ -16,6 +21,9 @@ public class CalibrationHandler : MonoBehaviour {
         get { return SteamVR_Controller.Input((int)trackedObj.index); }
     }
 
+    /// <summary>
+    /// Called when controllers are enabled. Initializes all fields.
+    /// </summary>
     void Awake()
     {
         trackedObj = GetComponent<SteamVR_TrackedObject>();
@@ -25,7 +33,11 @@ public class CalibrationHandler : MonoBehaviour {
         forwardCal = 0f;
     }
 	
-	// Update is called once per frame
+	/// <summary>
+    /// Called once per frame. Tracks the controller position, and updates calibration 
+    /// parameters if the position sets a new maximum for any of them. Also loads next
+    /// scene when the spacebar is hit.
+    /// </summary>
 	void Update () {
         Vector3 posn = gameObject.transform.position;
         
@@ -51,7 +63,7 @@ public class CalibrationHandler : MonoBehaviour {
             forwardCal = posn.z;
         }
 
-        // if properly calibrated
+        // move onto next scene if spacebar is hit
         if (Input.GetKeyDown(KeyCode.Space))
         {
             SaveData();
@@ -59,6 +71,9 @@ public class CalibrationHandler : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Saves all calibration info to the Game Controller singleton.
+    /// </summary>
     private void SaveData()
     {
         GameControl.Instance.leftMax = leftCal;

@@ -82,12 +82,12 @@ public class MenuController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        VRSettings.enabled = false;
+        UnityEngine.XR.XRSettings.enabled = false;
     }
 
     void OnDisable()
     {
-        VRSettings.enabled = true;
+        UnityEngine.XR.XRSettings.enabled = true;
     }
 
     public enum SessionLabels
