@@ -85,31 +85,31 @@ public class DataHandler : MonoBehaviour {
                 {
                     row.Add("no");
                 }
-                row.Add(d.hitTarget.ToString());
+                if (d.hitTarget)
+                {
+                    row.Add("yes");
+                }
+                else
+                {
+                    row.Add("no");
+                }
                 row.Add(d.score.ToString());
 
                 writer.WriteRow(row);
             }
 
-            /*writer.WriteRow(new CsvRow());
-            CsvRow score = new CsvRow();
-            score.Add("Score total: ");
-            score.Add(finalScore.ToString());
-
-            writer.WriteRow(score);
+            writer.WriteRow(new CsvRow());
+            //CsvRow score = new CsvRow();
+           
             
-             CsvRow sumheader = new CsvRow();
-                    sumheader.Add("Level");
-                    sumheader.Add("Score");
-                    sumheader.Add("Successful Trials");
-                    sumheader.Add("Total Trials");
-                    sumheader.Add("Success Rate");*/
+            CsvRow sumheader = new CsvRow();
+            sumheader.Add("Level");
+            sumheader.Add("Score");
+            sumheader.Add("Successful Trials");
+            sumheader.Add("Total Trials");
+            sumheader.Add("Success Rate");
 
-            if (!File.Exists(@"Data/" + GameControl.Instance.participantID + "_summary.csv"))
-            {
-                summaryOutput = new StreamWriter(@"Data/" + GameControl.Instance.participantID + "_summary.csv");
-                summaryOutput.WriteLine("Level,Score,Successful Trials,Total Trials,Success Rate");
-            }
+            writer.WriteRow(sumheader);
 
             string diff;
 
@@ -135,11 +135,16 @@ public class DataHandler : MonoBehaviour {
                     break;
 
             }
-            summaryOutput.WriteLine(diff + "," + finalScore + "," + numSuccesses + "," 
-                + GameControl.Instance.numTrials + "," + numSuccesses / GameControl.Instance.numTrials);
+
+            CsvRow summary = new CsvRow();
+            summary.Add(diff);
+            summary.Add(finalScore.ToString());
+            summary.Add(numSuccesses.ToString());
+            summary.Add(GameControl.Instance.numTrials.ToString());
+            summary.Add(((float)numSuccesses / (float)GameControl.Instance.numTrials).ToString());
+            writer.WriteRow(summary);
 
         }
-
 
         UIController.RecordData -= AddLine;
         UIController.OnTrialsComplete -= WriteSummary;

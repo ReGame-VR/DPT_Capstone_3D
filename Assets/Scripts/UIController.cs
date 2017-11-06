@@ -91,6 +91,8 @@ public class UIController : MonoBehaviour {
 
     private int numSuccesses;
 
+    private int prevScore = 0;
+
     // private bool decay = false;
 
     // for data recording 
@@ -250,8 +252,10 @@ public class UIController : MonoBehaviour {
     {
         if (RecordData != null)
         {
-            RecordData(currTrial, catchTime, throwTime, caught, thrown, targetHit, score);
+            RecordData(currTrial, catchTime, throwTime, caught, thrown, targetHit, score - prevScore);
         }
+
+        prevScore = score;
 
         caught = false;
         thrown = false;
@@ -280,6 +284,8 @@ public class UIController : MonoBehaviour {
         if (caught && thrown) {
             targetHit = true;
             score += 100;
+
+            numSuccesses++;
 
             DestroyBall();
             MoveTarget();
