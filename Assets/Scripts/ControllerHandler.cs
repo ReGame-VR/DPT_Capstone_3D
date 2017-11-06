@@ -83,7 +83,7 @@ public class ControllerHandler : MonoBehaviour {
 
     /// <summary>
     /// When a ball enters the trigger collider, check to make sure there isn't already an
-    /// object colliding before assigning the collider 
+    /// object colliding before assigning the collider to collidingObject.
     /// </summary>
     /// <param name="other"></param>
     public void OnTriggerEnter(Collider other)
