@@ -4,10 +4,9 @@ using System.IO;
 using System.Text;
 
 /// <summary>
-/// 
-/// Taken from Johnathan Wood's "Reading and Writing CSV Files in C#":
+/// A class for recording strings to a .csv file format. Taken from Johnathan Wood's 
+/// "Reading and Writing CSV Files in C#":
 /// https://www.codeproject.com/Articles/415732/Reading-and-Writing-CSV-Files-in-Csharp
-/// 
 /// </summary>
 
 namespace ReadWriteCSV

@@ -66,7 +66,8 @@ public class ControllerHandler : MonoBehaviour {
     }
 
     /// <summary>
-    /// Changes catchable to true because a new ball was spawned.
+    /// Changes catchable to true because a new ball was spawned. The event parameters do not matter
+    /// for this class.
     /// </summary>
     /// <param name="trialNum"></param>
     /// <param name="catchTime"></param>
@@ -85,7 +86,7 @@ public class ControllerHandler : MonoBehaviour {
     /// When a ball enters the trigger collider, check to make sure there isn't already an
     /// object colliding before assigning the collider to collidingObject.
     /// </summary>
-    /// <param name="other"></param>
+    /// <param name="other"></param> the ball colliding with the controller.
     public void OnTriggerEnter(Collider other)
     {
         if (collidingObject || !other.GetComponent<Rigidbody>())
@@ -97,6 +98,11 @@ public class ControllerHandler : MonoBehaviour {
         GrabObject();
     }
 
+    /// <summary>
+    /// When a ball stays in the collider, ensure that collidingObject is not null and
+    /// assign it and grab object if it is.
+    /// </summary>
+    /// <param name="other"></param> the ball colliding with the controller.
     public void OnTriggerStay(Collider other)
     {
         if (collidingObject || !other.GetComponent<Rigidbody>())
@@ -108,6 +114,10 @@ public class ControllerHandler : MonoBehaviour {
         GrabObject();
     }
 
+    /// <summary>
+    /// When the ball exits the collider, allow the ball to be caught again.
+    /// </summary>
+    /// <param name="other"></param>
     public void OnTriggerExit(Collider other)
     {
         if (!collidingObject)
@@ -115,10 +125,12 @@ public class ControllerHandler : MonoBehaviour {
             return;
         }
 
-        // collidingObject = null;
         catchable = true;
     }
 
+    /// <summary>
+    /// If the ball can be caught, attach it to the controller and make it not catchable.
+    /// </summary>
     private void GrabObject()
     {
         if (catchable) {
@@ -138,6 +150,10 @@ public class ControllerHandler : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Creates a fixed joint to attach controller to ball.
+    /// </summary>
+    /// <returns></returns> the fixed joint
     private FixedJoint AddFixedJoint()
     {
         FixedJoint fx = gameObject.AddComponent<FixedJoint>();
@@ -146,6 +162,10 @@ public class ControllerHandler : MonoBehaviour {
         return fx;
     }
 
+    /// <summary>
+    /// Release the ball from the controller, play the ball release event, and match the 
+    /// velocity of the ball to the controller.
+    /// </summary>
     private void ReleaseObject()
     {
         if (OnBallRelease != null)
@@ -165,7 +185,10 @@ public class ControllerHandler : MonoBehaviour {
         collidingObject = null;
     }
 
-    // Update is called once per frame
+    /// <summary>
+    /// Update is called once per frame. It checks whether the controller is above the velocity
+    /// threshold and releases the object if there is one.
+    /// </summary>
     void Update () {
 
         if (Controller.velocity.magnitude >= threshold)
