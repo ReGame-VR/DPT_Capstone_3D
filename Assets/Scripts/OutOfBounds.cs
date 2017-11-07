@@ -29,11 +29,13 @@ public class OutOfBounds : MonoBehaviour {
     /// <param name="other"></param> The collider of the ball leaving bounds.
     public void OnTriggerExit(Collider other)
     {
-        miss.Play();
+        if (other.gameObject.CompareTag("Ball")) {
+            miss.Play();
 
-        if (OnOutOfBounds != null)
-        {
-            OnOutOfBounds();
+            if (OnOutOfBounds != null)
+            {
+                OnOutOfBounds();
+            }
         }
     }
 }

@@ -89,7 +89,8 @@ public class ControllerHandler : MonoBehaviour {
     /// <param name="other"></param> the ball colliding with the controller.
     public void OnTriggerEnter(Collider other)
     {
-        if (collidingObject || !other.GetComponent<Rigidbody>())
+        if (collidingObject || !other.GetComponent<Rigidbody>()
+            || !other.gameObject.CompareTag("Ball"))
         {
             return;
         }
@@ -105,7 +106,8 @@ public class ControllerHandler : MonoBehaviour {
     /// <param name="other"></param> the ball colliding with the controller.
     public void OnTriggerStay(Collider other)
     {
-        if (collidingObject || !other.GetComponent<Rigidbody>())
+        if (collidingObject || !other.GetComponent<Rigidbody>() 
+            || !other.gameObject.CompareTag("Ball"))
         {
             return;
         }
@@ -120,7 +122,7 @@ public class ControllerHandler : MonoBehaviour {
     /// <param name="other"></param>
     public void OnTriggerExit(Collider other)
     {
-        if (!collidingObject)
+        if (!collidingObject || !other.gameObject.CompareTag("Ball"))
         {
             return;
         }
