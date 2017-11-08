@@ -234,6 +234,15 @@ public class UIController : MonoBehaviour {
 
             if (timeLeft > restPeriod)
             {
+                // if the ball has not been caught, move it towards the obj
+                if (!caught)
+                {
+                    float step = speed * Time.deltaTime;
+                    newBall.transform.position = Vector3.MoveTowards(newBall.transform.position, 
+                        obj.transform.position, step);
+                }
+                
+                // if there is a score decay, decay
                 if (scoreDecay != 0)
                 {
                     numFrames++;
@@ -244,6 +253,7 @@ public class UIController : MonoBehaviour {
                     }
                 }
 
+                // if there is a time limit to throwing, check for it
                 if (throwLim != 0 && caught && !thrown)
                 {
                     holdTime += Time.deltaTime;
@@ -276,6 +286,10 @@ public class UIController : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// When the ball goes out of bounds, destroy it, set time to the rest period and then move 
+    /// the target to get ready for next trial.
+    /// </summary>
     private void OnOutOfBounds()
     {
         timeLeft = restPeriod;
@@ -402,9 +416,8 @@ public class UIController : MonoBehaviour {
             // int direction = Random.Range(1, 4);
 
             // set the gameobject that the ball will move towards
-            Vector3 posn = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.1f, GameControl.Instance.rightMax - 0.1f),
+            obj.transform.position = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.1f, GameControl.Instance.rightMax - 0.1f),
                 Random.Range(minBallHeight, GameControl.Instance.heightMax), cameraRig.transform.position.z);
-            obj.transform.position = posn;
 
             float x, y, z;
 
@@ -416,8 +429,8 @@ public class UIController : MonoBehaviour {
             caught = false;
             newBall = Instantiate(Ball, new Vector3(x, y, z), Ball.transform.rotation);
             newBall.transform.localScale = newBall.transform.localScale * Difficulty.ballScale[difficulty];
-            newBall.transform.LookAt(obj.transform);
-            newBall.AddRelativeForce(Vector3.forward * speed, ForceMode.Acceleration);
+            // newBall.transform.LookAt(obj.transform);
+            // newBall.AddRelativeForce(Vector3.forward*-speed, ForceMode.Acceleration);
         }
     }
 
