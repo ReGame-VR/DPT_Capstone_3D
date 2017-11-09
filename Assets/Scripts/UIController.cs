@@ -47,6 +47,9 @@ public class UIController : MonoBehaviour {
     // the z-axis distance that the ball spawns in front of the user
     public float spawnDistance = 7f;
 
+    //the collider for the playing field
+    public Collider playField;
+
     // - - - - - DELEGATES AND EVENTS - - - - -
 
     // An event to broadcast when ALL trials are complete
@@ -123,7 +126,7 @@ public class UIController : MonoBehaviour {
     private int numCaught, numThrown, numSuccesses;
 
     // an offset value so that the ball spawns above mid thigh height 
-    private float minBallHeight = 0.8f;
+    private float minBallHeight = 1f;
 
     // the total score during the previous trial (used to calculate per-trial score)
     private int prevScore = 0;
@@ -149,6 +152,9 @@ public class UIController : MonoBehaviour {
     // the time it took to throw the ball from catch
     private float throwTime = float.PositiveInfinity;
 
+    // the z-posn of the back collider wall
+    private float zposn;
+
 	/// <summary>
     /// Subscribe to events and initialize values.
     /// </summary>
@@ -163,6 +169,11 @@ public class UIController : MonoBehaviour {
         numCaught = 0;
         numThrown = 0;
         numSuccesses = 0;
+
+        zposn = playField.bounds.center.z - playField.bounds.size.z / 2 - 0.2f;
+
+        // obj should spawn 10 m behind player so it will move out of bounds - some math to make sure it 
+        // remains in bounds
 
         onTimeUp = GetComponent<AudioSource>();
         obj = new GameObject();
@@ -218,7 +229,7 @@ public class UIController : MonoBehaviour {
         // ReachCollider.IsInReach += this.IsReachable;
         // ReachCollider.IsOutOfReach += this.IsNotReachable;
     }
-
+    
     /// <summary>
     /// Update is called every frame and handles the timer, delay between trials, 
     /// and trial reset.
@@ -407,17 +418,18 @@ public class UIController : MonoBehaviour {
     }
 
     /// <summary>
-    /// Create a ball coming from a random direction.
+    /// Create a ball that comes from a spawnDistance * spawnDistance  square spawnDistance units
+    /// in front of player, then move towards an object behind the player.
     /// </summary>
     private void CreateBall()
     {
         if (!isGameOver)
         {
-            // int direction = Random.Range(1, 4);
 
             // set the gameobject that the ball will move towards
-            obj.transform.position = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.1f, GameControl.Instance.rightMax - 0.1f),
-                Random.Range(minBallHeight, GameControl.Instance.heightMax), cameraRig.transform.position.z);
+            obj.transform.position = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.3f, 
+                GameControl.Instance.rightMax - 0.3f),Random.Range(minBallHeight, 
+                GameControl.Instance.heightMax - 0.3f), zposn);
 
             float x, y, z;
 
@@ -429,8 +441,6 @@ public class UIController : MonoBehaviour {
             caught = false;
             newBall = Instantiate(Ball, new Vector3(x, y, z), Ball.transform.rotation);
             newBall.transform.localScale = newBall.transform.localScale * Difficulty.ballScale[difficulty];
-            // newBall.transform.LookAt(obj.transform);
-            // newBall.AddRelativeForce(Vector3.forward*-speed, ForceMode.Acceleration);
         }
     }
 
