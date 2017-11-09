@@ -172,9 +172,6 @@ public class UIController : MonoBehaviour {
 
         zposn = playField.bounds.center.z - playField.bounds.size.z / 2 - 0.2f;
 
-        // obj should spawn 10 m behind player so it will move out of bounds - some math to make sure it 
-        // remains in bounds
-
         onTimeUp = GetComponent<AudioSource>();
         obj = new GameObject();
         this.numTrials = GameControl.Instance.numTrials;
