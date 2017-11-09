@@ -5,42 +5,59 @@ using UnityEngine.UI;
 
 
 /// <summary>
-/// Slightly misleading title, but this class runs the trials.
+/// This class handles the trials as well as updating the UI with score.
 /// </summary>
 public class UIController : MonoBehaviour {
 
     // - - - - - PUBLIC VARIABLES - - - - -
 
+    // the UI canvas that displays the front target (when active)
     public Canvas frontCanvas;
 
+    // the UI canvas that displays the left target (when active)
     public Canvas leftCanvas;
 
+    // the UI canvas that displays the right target (when active)
     public Canvas rightCanvas;
 
+    // the UI canvas that displays the ceiling/top target (when active)
     public Canvas ceilingCanvas;
 
+    // the UI canvas that displays the floor/bottom target (when active)
     public Canvas floorCanvas;
 
+    // the trigger collider - moves with active target and scales with target scale
     public GameObject targetCollider;
 
-    public Rigidbody Ball; // the ball 
+    // the ball prefab
+    public Rigidbody Ball; 
 
-    public float speed; // the speed of the ball coming towards the target
+    // the BASE speed that the ball moves at. Scales with difficulty
+    public float speed; 
 
-    public GameObject cameraRig; // the camerarig prefab
+    // the SteamVR camera rig prefab
+    public GameObject cameraRig; 
 
+    // the UI text that displays the score and endgame message
     public Text text;
 
+    // the total amount of time to complete a single trial
     public float timer = 10f;
 
+    // the z-axis distance that the ball spawns in front of the user
     public float spawnDistance = 7f;
+
+    //the collider for the playing field
+    public Collider playField;
 
     // - - - - - DELEGATES AND EVENTS - - - - -
 
-    public delegate void TrialsComplete(int score);
+    // An event to broadcast when ALL trials are complete
+    public delegate void TrialsComplete(int score, int numSuccesses);
 
     public static TrialsComplete OnTrialsComplete;
 
+    // An event to broadcast after a single trial is complete
     public delegate void TrialComplete(int trialNum, float catchTime,
         float throwTime, bool wasCaught, bool wasThrown, bool hitTarget, int score);
 
@@ -48,59 +65,95 @@ public class UIController : MonoBehaviour {
 
     // - - - - - PRIVATE VARIABLES - - - - -
 
-    private Rigidbody newBall; // the new ball that is instantiated 
+    // the new ball that is instantiated
+    private Rigidbody newBall;
 
-    private int targetDirection = 1; // store target position for move ball and reset methods
+    // store target position for move ball and reset methods
+    private int targetDirection = 1;
 
-    private GameObject obj; // an empty object in grab range that the ball will move towards
+    // an empty object in grab range that the ball will move towards
+    private GameObject obj;
 
-    private float targetWidth = 6.5f; // the width of the target when at 100% scale.
+    // the width of the target when at 100% scale.
+    private float targetWidth = 6.5f;
 
-    private bool isGameOver = false; // have the set number of trials been completed?
+    // have the set number of trials been completed?
+    private bool isGameOver = false;
 
-    private int numTrials; // the number of trials to play
+    // the number of trials to play
+    private int numTrials;
 
-    private int currTrial = 1; // which trial is currently running
+    // which trial is currently running
+    private int currTrial = 1;
 
-    private float timeLeft; // the time left for the trial
+    // the time left for the trial
+    private float timeLeft;
 
-    private float restPeriod; // the amount of times (in seconds) to rest between trials
+    // the amount of times (in seconds) to rest between trials
+    private float restPeriod;
 
-    private int score = 0; // the user score
+    // the user score
+    private int score = 0;
 
-    private int difficulty; // the difficulty the trial is playing at - 0, 1, 2, or 3
+    // the difficulty the trial is playing at, represented by an integer index
+    // this int can be used to retrieve information from the Difficulty class arrays by index
+    private int difficulty;
 
-    private int scoreDecay; // subtract from score every scoreDecay frames
+    // subtract from score every scoreDecay frames
+    private int scoreDecay;
 
-    private int numFrames = 0; // this will measure the number of frames that have passed
-                               // since ball entered reachable area
+    // this will measure the number of frames that have passed since ball entered reachable area
+    private int numFrames = 0;
 
-    private AudioSource onTimeUp; // played when time is up
+    // played when time is up
+    private AudioSource onTimeUp;
 
+    // the width (x axis) in Unity units that targets can spawn in
     private float fieldWidth = 12;
 
+    // the depth (z axis) in Unity units that targets can spawn in
     private float fieldDepth = 9;
 
+    // the height (y axis) in Unity units that the targets can spawn in
     private float fieldHeight = 9;
 
+    // the offset is based off of the target size and ensures targets do not extend outside 
+    // playable area
     private float offsetSize;
 
-    private int numCaught, numThrown, numHit;
+    // the number of trials where the ball was: successfully caught, successfully thrown, 
+    // thrown into the target
+    private int numCaught, numThrown, numSuccesses;
 
-    private float minBallHeight = 0.8f;
+    // an offset value so that the ball spawns above mid thigh height 
+    private float minBallHeight = 1f;
 
-    // private bool decay = false;
+    // the total score during the previous trial (used to calculate per-trial score)
+    private int prevScore = 0;
 
-    // for data recording 
+    // the amount of time to throw the ball once caught before it is destroyed (if 0, no limit)
+    private float throwLim;
+
+    // the amount of time the user held onto the ball after being caught
+    private float holdTime = 0;
+
+    // did they catch the ball this trial?
     private bool caught = false;
 
+    // did they throw the ball this trial?
     private bool thrown = false;
 
+    // did they hit the target this trial?
     private bool targetHit = false;
 
+    // the time it took to catch the ball from spawn
     private float catchTime = float.PositiveInfinity;
 
+    // the time it took to throw the ball from catch
     private float throwTime = float.PositiveInfinity;
+
+    // the z-posn of the back collider wall
+    private float zposn;
 
 	/// <summary>
     /// Subscribe to events and initialize values.
@@ -115,7 +168,12 @@ public class UIController : MonoBehaviour {
 
         numCaught = 0;
         numThrown = 0;
-        numHit = 0;
+        numSuccesses = 0;
+
+        zposn = playField.bounds.center.z - playField.bounds.size.z / 2 - 0.2f;
+
+        // obj should spawn 10 m behind player so it will move out of bounds - some math to make sure it 
+        // remains in bounds
 
         onTimeUp = GetComponent<AudioSource>();
         obj = new GameObject();
@@ -126,6 +184,7 @@ public class UIController : MonoBehaviour {
         restPeriod = Difficulty.delay[difficulty];
         scoreDecay = Difficulty.scoreDecay[difficulty];
         speed = speed * Difficulty.velocityScale[difficulty];
+        throwLim = Difficulty.throwLim[difficulty];
 
         // scale targets according to difficulty:
         frontCanvas.transform.localScale = frontCanvas.transform.localScale 
@@ -170,7 +229,7 @@ public class UIController : MonoBehaviour {
         // ReachCollider.IsInReach += this.IsReachable;
         // ReachCollider.IsOutOfReach += this.IsNotReachable;
     }
-
+    
     /// <summary>
     /// Update is called every frame and handles the timer, delay between trials, 
     /// and trial reset.
@@ -186,6 +245,15 @@ public class UIController : MonoBehaviour {
 
             if (timeLeft > restPeriod)
             {
+                // if the ball has not been caught, move it towards the obj
+                if (!caught)
+                {
+                    float step = speed * Time.deltaTime;
+                    newBall.transform.position = Vector3.MoveTowards(newBall.transform.position, 
+                        obj.transform.position, step);
+                }
+                
+                // if there is a score decay, decay
                 if (scoreDecay != 0)
                 {
                     numFrames++;
@@ -193,6 +261,21 @@ public class UIController : MonoBehaviour {
                     if (numFrames % scoreDecay == 0)
                     {
                         score--;
+                    }
+                }
+
+                // if there is a time limit to throwing, check for it
+                if (throwLim != 0 && caught && !thrown)
+                {
+                    holdTime += Time.deltaTime;
+
+                    if (holdTime >= throwLim)
+                    {
+                        holdTime = 0;
+                        timeLeft = restPeriod;
+                        onTimeUp.Play();
+                        DestroyBall();
+                        MoveTarget();
                     }
                 }
             }
@@ -214,6 +297,10 @@ public class UIController : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// When the ball goes out of bounds, destroy it, set time to the rest period and then move 
+    /// the target to get ready for next trial.
+    /// </summary>
     private void OnOutOfBounds()
     {
         timeLeft = restPeriod;
@@ -248,8 +335,10 @@ public class UIController : MonoBehaviour {
     {
         if (RecordData != null)
         {
-            RecordData(currTrial, catchTime, throwTime, caught, thrown, targetHit, score);
+            RecordData(currTrial, catchTime, throwTime, caught, thrown, targetHit, score - prevScore);
         }
+
+        prevScore = score;
 
         caught = false;
         thrown = false;
@@ -278,6 +367,8 @@ public class UIController : MonoBehaviour {
         if (caught && thrown) {
             targetHit = true;
             score += 100;
+
+            numSuccesses++;
 
             DestroyBall();
             MoveTarget();
@@ -322,23 +413,23 @@ public class UIController : MonoBehaviour {
 
         if (OnTrialsComplete != null)
         {
-            OnTrialsComplete(score);
+            OnTrialsComplete(score, numSuccesses);
         }
     }
 
     /// <summary>
-    /// Create a ball coming from a random direction.
+    /// Create a ball that comes from a spawnDistance * spawnDistance  square spawnDistance units
+    /// in front of player, then move towards an object behind the player.
     /// </summary>
     private void CreateBall()
     {
         if (!isGameOver)
         {
-            // int direction = Random.Range(1, 4);
 
             // set the gameobject that the ball will move towards
-            Vector3 posn = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.1f, GameControl.Instance.rightMax - 0.1f),
-                Random.Range(minBallHeight, GameControl.Instance.heightMax), cameraRig.transform.position.z);
-            obj.transform.position = posn;
+            obj.transform.position = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.3f, 
+                GameControl.Instance.rightMax - 0.3f),Random.Range(minBallHeight, 
+                GameControl.Instance.heightMax - 0.3f), zposn);
 
             float x, y, z;
 
@@ -347,33 +438,9 @@ public class UIController : MonoBehaviour {
             z = cameraRig.transform.position.z + spawnDistance;
             y = Random.Range(cameraRig.transform.position.y, spawnDistance);
 
-            /*
-            switch (direction)
-            {
-                // comes from front
-                case 1:
-                    x = Random.Range(cameraRig.transform.position.x - fieldWidth / 2f, cameraRig.transform.position.x + fieldWidth / 2f);
-                    z = cameraRig.transform.position.z + fieldDepth;
-                    break;
-
-                // comes from left
-                case 2:
-                    x = cameraRig.transform.position.x - fieldWidth / 2;
-                    z = Random.Range(cameraRig.transform.position.z, cameraRig.transform.position.z + fieldDepth);
-                    break;
-
-                // comes from right
-                default:
-                    x = cameraRig.transform.position.x + fieldWidth / 2;
-                    z = Random.Range(cameraRig.transform.position.z, cameraRig.transform.position.z + fieldDepth);
-                    break;
-            }*/
-
             caught = false;
             newBall = Instantiate(Ball, new Vector3(x, y, z), Ball.transform.rotation);
             newBall.transform.localScale = newBall.transform.localScale * Difficulty.ballScale[difficulty];
-            newBall.transform.LookAt(obj.transform);
-            newBall.AddRelativeForce(Vector3.forward * speed, ForceMode.Acceleration);
         }
     }
 
@@ -450,6 +517,9 @@ public class UIController : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Destroys the current existing ball (if it has not already been destroyed).
+    /// </summary>
     private void DestroyBall()
     {
         if (newBall) {
