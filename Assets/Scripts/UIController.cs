@@ -159,6 +159,9 @@ public class UIController : MonoBehaviour {
     /// Subscribe to events and initialize values.
     /// </summary>
 	void Awake () {
+        // frequent fixedupdate
+        Time.fixedDeltaTime = 0.001f;
+
         TargetCollision.OnTargetHit += this.TargetHit;
         ControllerHandler.OnBallGrab += this.BallCaught;
         ControllerHandler.OnBallRelease += this.BallReleased;
@@ -424,9 +427,9 @@ public class UIController : MonoBehaviour {
         {
 
             // set the gameobject that the ball will move towards
-            obj.transform.position = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.3f, 
-                GameControl.Instance.rightMax - 0.3f),Random.Range(minBallHeight, 
-                GameControl.Instance.heightMax - 0.3f), zposn);
+            obj.transform.position = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.4f, 
+                GameControl.Instance.rightMax - 0.4f),Random.Range(minBallHeight, 
+                GameControl.Instance.heightMax - 0.6f), zposn);
 
             float x, y, z;
 
