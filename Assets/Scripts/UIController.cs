@@ -428,8 +428,8 @@ public class UIController : MonoBehaviour {
         {
 
             // set the gameobject that the ball will move towards
-            obj.transform.position = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.5f, 
-                GameControl.Instance.rightMax - 0.5f),Random.Range(minBallHeight, 
+            obj.transform.position = new Vector3(Random.Range(GameControl.Instance.leftMax + 0.6f, 
+                GameControl.Instance.rightMax - 0.6f),Random.Range(minBallHeight, 
                 GameControl.Instance.heightMax - 0.6f), zposn);
 
             float x, y, z;
