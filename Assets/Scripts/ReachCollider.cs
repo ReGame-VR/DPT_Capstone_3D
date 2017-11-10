@@ -45,8 +45,8 @@ public class ReachCollider : MonoBehaviour {
             cameraRig.transform.position.y + GameControl.Instance.heightMax / 2, 
             cameraRig.transform.position.z);
         bc.size = new Vector3(System.Math.Abs(GameControl.Instance.leftMax) 
-            + GameControl.Instance.rightMax, GameControl.Instance.heightMax,
-            GameControl.Instance.reachMax * 2);
+            + GameControl.Instance.rightMax + 0.2f, GameControl.Instance.heightMax + 0.1f,
+            GameControl.Instance.reachMax * 2 + 0.2f);
 
 	}
 
