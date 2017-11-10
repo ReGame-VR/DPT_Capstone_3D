@@ -240,6 +240,17 @@ public class UIController : MonoBehaviour {
             text.text = /*"Trial " + currTrial + " of " + numTrials +
                 "\nTime Left: " + Mathf.Round(timeLeft) +*/ "Score: " + score;
 
+            // if there is a score decay, decay
+            if (scoreDecay != 0)
+            {
+                numFrames++;
+
+                if (numFrames % scoreDecay == 0)
+                {
+                    score--;
+                }
+            }
+
             if (timeLeft > restPeriod)
             {
                 // if the ball has not been caught, move it towards the obj
@@ -248,17 +259,6 @@ public class UIController : MonoBehaviour {
                     float step = speed * Time.deltaTime;
                     newBall.transform.position = Vector3.MoveTowards(newBall.transform.position, 
                         obj.transform.position, step);
-                }
-                
-                // if there is a score decay, decay
-                if (scoreDecay != 0)
-                {
-                    numFrames++;
-
-                    if (numFrames % scoreDecay == 0)
-                    {
-                        score--;
-                    }
                 }
 
                 // if there is a time limit to throwing, check for it
